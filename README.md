@@ -35,4 +35,6 @@ It serves as both a study archive and a technical reference: a place where I doc
 
 ---
 
-> *“A codex is not just a book — it’s a living archive of what you learn, create, and become.”*
+> *“Stay hungry. Stay foolish.”*  
+> <sub>— Steve Jobs, Stanford Commencement (2005)</sub>
+
