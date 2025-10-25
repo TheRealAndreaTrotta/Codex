@@ -1,264 +1,152 @@
-# Git — appunti “da campo” (lineari, pratici, con immagini)
+# Git — appunti “da campo” (approfonditi, pratici, con esempi)
 
-> Obiettivo: mappa mentale chiara + flusso quotidiano dei comandi, per lavorare bene da solo o in team (CS50/CS50W & GitHub).
-
----
-
-## Indice
-1. Introduzione: Git vs GitHub  
-2. Setup iniziale  
-3. Creare o clonare un repository  
-4. Flusso locale: `status → add → commit → push`  
-5. Staging spiegato: cosa fa `git add file.example`  
-6. Commit: `-m` vs `-am` (pro & contro)  
-7. Pubblicare online: `git push`  
-8. Sincronizzare: `git fetch` / `git pull` + *divergent branches*  
-9. Merge vs Rebase vs Fast-Forward (quando usare cosa)  
-10. .gitignore (e come rimediare agli errori)  
-11. Ispezione: `status`, `diff`, `log`, `show`, `blame`  
-12. Tornare indietro: `restore`, `revert`, `reset`, `reflog`  
-13. Branching e HEAD (concetto, utilità, potenziale)  
-14. Merge conflicts (riconoscerli e risolverli)  
-15. Funzioni utili di GitHub (Fork, PR, Pages)  
-16. Mini-cheatsheet
+> Obiettivo: andare **oltre le basi**. Capire *come* Git funziona, *quando* scegliere merge/rebase, *come* risolvere conflitti in fretta, e *come* usare al meglio GitHub (PR, Actions, Pages).
 
 ---
 
-## 1) Introduzione: Git vs GitHub
+## 🧭 Mappa rapida (concetti chiave)
 
-- **Git**: sistema di *version control* da riga di comando.  
-  - Salva **snapshot** del codice (commit), permette **branch** separati, **merge/rebase**, **undo** sicuri.
-- **GitHub**: sito che ospita repo Git **remoti** (sincronizzazione, PR, issues, Pages, ecc).
+- **Repository** = cartella con `.git/` (database degli oggetti + index).
+- **Oggetti Git**:  
+  - **blob** (contenuto file), **tree** (directory), **commit** (snapshot + metadati), **tag** (etichetta su commit).  
+- **Commit** = snapshot immutabile → referenziato da SHA.  
+- **HEAD** = puntatore al branch corrente (o a un commit se “detached”).  
+- **Index / Staging** = “lista della spesa” del *prossimo commit*.  
+- **Remote** (es. `origin`) = copia su GitHub.  
+- **Branch** = etichetta che punta a un commit (si muove ad ogni commit).
 
-> Repository = cartella con `.git/` (tutta la storia). Può essere **locale** (tuo PC) o **remoto** (GitHub).
+> Mental model: Git è un **grafo aciclico** di commit. Branch e tag sono solo *etichette* su nodi del grafo.
 
 ---
 
-## 2) Setup iniziale (una volta)
+## ⚙️ Setup raffinato (una volta)
 
 ```bash
 git config --global user.name  "Il Tuo Nome"
 git config --global user.email "tu@email.com"
 git config --global init.defaultBranch main
-git config --global core.editor "code --wait"  # VS Code per messaggi
-# (consigliato) Pull lineare
-git config --global pull.rebase true
-git config --global rebase.autoStash true
+git config --global core.editor "code --wait"
+git config --global pull.rebase true         # storia lineare di default
+git config --global rebase.autoStash true    # stash automatico durante rebase/pull
+# Fine line endings (consiglio: mac/linux)
+git config --global core.autocrlf input
+# (Windows spesso:)
+# git config --global core.autocrlf true
 ```
 
-**SSH (niente password):**
+**SSH** (evita password):
 ```bash
 ssh-keygen -t ed25519 -C "tu@email.com"
-# copia ~/.ssh/id_ed25519.pub su GitHub → Settings → SSH Keys
-```
-
----
-
-## 3) Creare o clonare un repository
-
-**Nuovo repo locale**
-```bash
-mkdir progetto && cd progetto
-git init
-```
-
-**Clonare il repo remoto nella cartella dove vuoi lavorare/pubblicare**
-```bash
-git clone <URL>   # es: git@github.com:utente/repo.git  (SSH)
-cd repo
-```
-
-> TIP (tempo/spazio): `git clone --depth=1 …` (shallow) • `git sparse-checkout set path/` (solo sottocartelle)
-
----
-
-## 4) Flusso locale: `status → add → commit → push`
-
-```bash
-git status
-git add file1 file2      # oppure: git add .
-git commit -m "feat: messaggio chiaro"
-git push                 # primo push?  git push -u origin <branch>
-```
-
-**Messaggi leggibili** (Conventional Commits): `feat: ...` • `fix: ...` • `docs: ...` • `refactor: ...`
-
-> TIP: `git add -p` per committare “a pezzetti” in modo logico.
-
----
-
-## 5) Staging spiegato: cosa fa `git add file.example`
-
-- **`git add file.example`** mette **la versione attuale** del file nell’**staging area** ⇒ pronta per il **prossimo commit**.  
-- Non crea un commit, non invia su GitHub.
-- Se il file era:
-  - **nuovo** → diventa tracciato e staged;
-  - **modificato** → le modifiche correnti vanno in stage;
-  - **in `.gitignore`** → viene saltato (forza con `git add -f`).
-
-Togli dallo stage: `git restore --staged file.example`.
-
----
-
-## 6) Commit: `-m` vs `-am`
-
-```bash
-git commit -m "msg"        # committa ciò che è in stage (anche file nuovi)
-git commit -am "msg"       # committa TUTTE le modifiche ai file già tracciati
-                           # (non include file nuovi non ancora 'add')
-```
-
----
-
-## 7) Pubblicare online: `git push`
-
-Finché non fai `git push`, i tuoi commit restano **solo in locale**.
-```bash
-git commit -m "message"
-git push
-```
-
----
-
-## 8) Sincronizzare: `git fetch` / `git pull` + *divergent branches*
-
-- **`git fetch`**: aggiorna i riferimenti remoti, non tocca i file locali.  
-- **`git pull`**: `fetch` + integra (merge o rebase).
-
-Se vedi:
-```
-hint: You have divergent branches and need to specify how to reconcile them.
-```
-Scegli uno stile:
-
-```bash
-# (consigliato) rebase lineare
-git pull --rebase
-
-# oppure: merge classico
-git pull --no-rebase
-
-# oppure: solo fast-forward (fallisce se serve merge)
-git pull --ff-only
-```
-
-Imposta il **default** per tutti i repo:
-```bash
-git config --global pull.rebase true        # rebase
-# o
-git config --global pull.rebase false       # merge
-# o
-git config --global pull.ff only            # fast-forward only
-```
-
----
-
-## 9) Merge vs Rebase vs Fast-Forward
-
-| Strategia        | Pro                         | Contro / Note                           | Comando tipico                |
-|------------------|-----------------------------|-----------------------------------------|--------------------------------|
-| **Merge**        | Sicuro, conserva la storia  | Storia “ramificata” con commit di merge | `git merge feature/x`         |
-| **Rebase**       | Storia lineare e pulita     | Riscrive commit del branch              | `git rebase origin/main`      |
-| **Fast-Forward** | Nessun commit extra         | Fallisce se i rami sono divergenti      | `git pull --ff-only`          |
-
-> Regola pratica: rebase per pulire i **tuoi** branch prima della PR. Evita di rebase-are storia **già condivisa**.
-
----
-
-## 10) `.gitignore` (cosa non tracciare)
-
-```gitignore
-# OS / editor
-.DS_Store
-.vscode/
-
-# build / dipendenze
-node_modules/
-dist/
-.env
-```
-
-Hai già committato qualcosa da ignorare?
-```bash
-git rm -r --cached path/da/ignorare
-echo "path/da/ignorare" >> .gitignore
-```
-
----
-
-## 11) Ispezione: `status`, `diff`, `log`, `show`, `blame`
-
-```bash
-git status -sb
-git diff                 # differenze non staged
-git diff --staged        # differenze staged
-git log --oneline --graph --decorate --all
-git show <sha>           # dettaglio commit
-git blame file.txt       # chi/quando ha cambiato ogni riga
+# copia ~/.ssh/id_ed25519.pub in GitHub → Settings → SSH and GPG keys
 ```
 
 Alias utili:
 ```bash
 git config --global alias.st "status -sb"
 git config --global alias.lg "log --oneline --graph --decorate --all"
+git config --global alias.co "checkout"
+git config --global alias.br "branch"
 ```
 
 ---
 
-## 12) Tornare indietro: `restore`, `revert`, `reset`, `reflog`
+## 🧪 Basi solide (con chiarimenti richiesti)
 
-- **Scartare modifiche non committate**  
-  ```bash
-  git restore file.txt
-  git restore --source=HEAD -- .
-  ```
-- **Annullare un commit preservando la storia (sicuro)**  
-  ```bash
-  git revert <sha>
-  ```
-- **Riscrivere la storia locale (attenzione!)**  
-  ```bash
-  git reset --soft  <sha>   # tieni staging & working
-  git reset --mixed <sha>   # default: tieni working, svuota staging
-  git reset --hard  <sha>   # PERDITA modifiche locali
-  ```
-- **Allinearsi esattamente al remoto**  
-  ```bash
-  git reset --hard origin/main     # (o origin/master su repo vecchi)
-  ```
-- **Paracadute**  
-  ```bash
-  git reflog    # recupera SHA “persi” dopo reset/checkout
-  ```
-
-> Se hai committato segreti: usa `git filter-repo` o **BFG** e **revoca** le credenziali.
-
----
-
-## 13) Branching e HEAD (concetto, utilità, potenziale)
-
-- **Branch**: linea di sviluppo indipendente (nuove feature, bugfix), poi **merge/rebase** in `main`.  
-- **HEAD**: puntatore al commit/branch su cui stai lavorando.
-
-Comandi base:
+### Clonare nella cartella dove vuoi lavorare/pubblicare
 ```bash
-git branch                    # elenco (asterisco = branch corrente)
-git checkout -b feature/x     # Crea + passa al nuovo branch  (equivale a:)
-# git switch -c feature/x
-git checkout main             # torna a main  (equivale a: git switch main)
-git merge feature/x           # unisci in main
-git branch -d feature/x       # elimina branch (se mergiato)
+git clone <URL>   # es: git@github.com:utente/repo.git
+cd repo
 ```
 
-Immagini utili:
-- *No branch vs feature branch*: vedi `no_branch.png` e `branch.png`
-- *Multi-user sync*: `mult_users.png`
+### Cosa fa `git add file.example`?
+- **Staggia** la versione *attuale* di `file.example` (prepara al prossimo commit).  
+- Non crea commit, non pusha.  
+- Se è nuovo → inizia a tracciarlo; se è già tracciato → aggiunge le modifiche; se è in `.gitignore` → viene ignorato (forza con `-f`).
+
+Togli dallo stage:
+```bash
+git restore --staged file.example
+```
+
+### Commit singolo vs commit “tutti i tracciati”
+```bash
+git commit -m "msg"      # committa ciò che è in stage (file nuovi inclusi)
+git commit -am "msg"     # committa TUTTE le modifiche ai file già tracciati
+                         # (non include file nuovi non 'add'-ati)
+```
+
+### Pubblicare davvero online
+Finché non fai `push`, tutto resta **in locale**:
+```bash
+git commit -m "message"
+git push
+```
+
+### Vedere cosa è cambiato
+```bash
+git status            # file modificati, non tracciati, staged
+git diff              # differenze non staged
+git diff --staged     # differenze staged
+```
 
 ---
 
-## 14) Merge conflicts (riconoscerli e risolverli)
+## 🔁 Sincronizzare con il remoto (e il messaggio “divergent branches”)
 
-Esempio di conflitto:
+- **`git fetch`**: aggiorna riferimenti remoti (non tocca file locali).  
+- **`git pull`**: `fetch` + integra (merge/rebase).
+
+Se Git dice:
+```
+hint: You have divergent branches and need to specify how to reconcile them.
+```
+Scegli lo stile (una volta per tutte):
+```bash
+# consigliato: rebase lineare
+git config --global pull.rebase true
+# oppure merge classico
+git config --global pull.rebase false
+# oppure consenti solo fast-forward
+git config --global pull.ff only
+```
+
+Uso puntuale:
+```bash
+git pull --rebase    # lineare
+git pull --no-rebase # merge
+git pull --ff-only   # solo fast-forward (fallisce se divergono)
+```
+
+---
+
+## 🔀 Merge vs Rebase (scelte consapevoli)
+
+| Strategia         | Quando usarla                                 | Pro                                   | Contro/Note                                 |
+|-------------------|-----------------------------------------------|----------------------------------------|---------------------------------------------|
+| **Merge**         | Integrare branch *pubblici* o team numerosi   | Non riscrive storia, sicuro            | Commit di merge, storia “ramificata”        |
+| **Rebase**        | Pulire branch *privati* prima della PR        | Storia lineare, facile da leggere      | Riscrive commit → non su storia condivisa   |
+| **Squash merge**  | Accorpare commit “rumorosi” in PR             | 1 commit pulito su `main`              | Perdi granularità dei commit della feature  |
+| **FF-only**       | Solo avanzamenti lineari                       | Storia senza commit di merge           | Fallisce se serve un merge/rebase           |
+
+Comandi tipici:
+```bash
+# Merge
+git switch main
+git pull
+git merge feature/x
+
+# Rebase (pulizia di feature/x)
+git switch feature/x
+git fetch origin
+git rebase origin/main
+# risolvi conflitti → git add … → git rebase --continue
+```
+
+---
+
+## 🧱 Merge conflicts (veloce & bene)
+
+Esempio:
 ```txt
 a = 1
 <<<<<<< HEAD
@@ -267,75 +155,333 @@ b = 2
 b = 3
 >>>>>>> 56782736387980937883
 c = 3
-d = 4
+```
+Passi:
+```bash
+# 1) modifica i file, scegli cosa tenere, rimuovi i marker
+git add <file_risolto>
+# 2) se rebase:
+git rebase --continue
+#    se merge:
+git commit
+# Se serve annullare:
+# git rebase --abort  |  git merge --abort
 ```
 
-**Risoluzione (passi):**
-1. Apri i file, scegli cosa tenere, **rimuovi i marker** `<<<<<<< ======= >>>>>>>`.
-2. `git add <file_risolto>`
-3. Continua l’operazione:
-   - se era **rebase**: `git rebase --continue`
-   - se era **merge**:  `git commit`
-4. In difficoltà? `git merge --abort` o `git rebase --abort`.
-
-Editor come **VS Code Merge Editor** offrono “Accept Current / Incoming / Both”.
-
----
-
-## 15) Funzioni utili di GitHub
-
-- **Fork**: tua copia di un repo altrui (per proporre modifiche).
-- **Pull Request**: chiedi di unire i tuoi cambi al repo originale (review, CI).
-- **GitHub Pages** (pubblica un sito statico):
-  1. Crea repo con `index.html`
-  2. `git push`
-  3. Repo → **Settings → Pages** → scegli branch (es. `main`)  
-  4. Attendi l’URL pubblicato.
+Tool utili: VS Code Merge Editor (“Accept Current/Incoming/Both”).  
+Trucchi nel file in conflitto:
+```bash
+# prendi la tua versione
+git checkout --ours   -- path/file
+# prendi la versione remota
+git checkout --theirs -- path/file
+```
 
 ---
 
-## 16) Mini-cheatsheet (copia/incolla)
+## 🧳 Stash avanzato
 
 ```bash
-# Inizializza / Clona
-git init
-git clone <URL>
+git stash           # salva modifiche tracciate
+git stash -u        # include non tracciati (untracked)
+git stash -a        # include anche ignorati (attenzione!)
+git stash pop       # applica + rimuovi dallo stash
+git stash apply     # applica e lascia nello stash
+git stash branch feature/esperimento   # crea branch da quello stash
+```
 
-# Stato e differenze
-git status -sb
-git diff
-git diff --staged
+Opzioni utili:
+```bash
+git stash --keep-index   # stasha solo ciò che NON è staged
+git stash -p             # interattivo (a pezzi)
+```
 
-# Aggiungi e committa
-git add -p
-git commit -m "feat: descrizione"
-git commit -am "fix: solo file già tracciati"
+---
 
-# Pubblica
+## 🧰 Tornare indietro in sicurezza
+
+```bash
+# scarta modifiche non committate
+git restore file.txt
+git restore --source=HEAD -- .
+
+# annulla un commit (NON riscrive storia)
+git revert <sha>
+
+# riscrivi storia locale (ATTENZIONE)
+git reset --soft  <sha>    # tiene staging & working
+git reset --mixed <sha>    # default: svuota staging
+git reset --hard  <sha>    # PERDE modifiche locali
+git reset --hard origin/main   # riallinea alla versione remota
+# (vecchi repo: origin/master)
+```
+
+Paracadute:
+```bash
+git reflog   # recupera SHA “persi” dopo reset/checkout
+```
+
+---
+
+## 🧭 Branching pro & HEAD
+
+Perché **branch**: lavorare su feature/bugfix senza toccare `main`, aprire PR, fare review, fare rollback mirati.
+
+```bash
+git branch                  # elenco (asterisco = corrente)
+git checkout -b feature/x   # crea & passa (oppure: git switch -c feature/x)
+git checkout main           # torna (oppure: git switch main)
+git merge feature/x         # integra in main
+git branch -d feature/x     # elimina (se mergiato)
+git push -u origin feature/x # collega branch remoto
+```
+
+**HEAD**:
+- Punta al branch attivo (es. `refs/heads/main`).  
+- *Detached HEAD*: sei “su un commit” (es. dopo `git checkout <sha>`). Crea un branch se vuoi continuare lì:
+```bash
+git switch -c hotfix/quick
+```
+
+---
+
+## 🔎 Log & selezioni potenti (per capire *cosa* è successo)
+
+```bash
+git log --oneline --graph --decorate --all
+git log --since="2 weeks ago" -- path/file
+git show <sha>
+git diff A..B         # differenze dei contenuti tra A e B
+git log A..B          # commit raggiungibili da B ma non da A
+git log A...B         # commit che differenziano A e B (symmetric diff)
+# genitori:
+git show HEAD^        # il primo genitore
+git show HEAD~2       # due commit indietro
+```
+
+Statistiche:
+```bash
+git shortlog -sn      # autori e numero commit
+git blame -L 10,30 file.txt   # chi ha toccato righe 10..30
+```
+
+---
+
+## ✍️ Rifinire la storia (amend, autosquash, cherry-pick, bisect)
+
+```bash
+git commit --amend               # modifica l'ultimo commit (msg o contenuto)
+git commit -m "fixup! <msg>"     # crea commit di fix
+git rebase -i --autosquash origin/main   # unisce i fixup! automaticamente
+
+git cherry-pick <sha>            # porta un commit specifico sul branch attuale
+
+# trovare il commit “colpevole”
+git bisect start
+git bisect bad
+git bisect good <sha_buono>
+# → testi suggeriti da Git → good/bad finché isoli il commit
+git bisect reset
+```
+
+---
+
+## 🧹 `.gitignore` & `.gitattributes` (qualità di vita)
+
+`.gitignore` (esempio):
+```gitignore
+.DS_Store
+.vscode/
+node_modules/
+dist/
+.env
+```
+Hai già committato roba da ignorare?
+```bash
+git rm -r --cached path/da/ignorare
+echo "path/da/ignorare" >> .gitignore
+```
+
+`.gitattributes` (line endings, linguaggi, LFS):
+```gitattributes
+* text=auto
+*.sh text eol=lf
+# LFS (es.)
+*.psd filter=lfs diff=lfs merge=lfs -text
+```
+
+---
+
+## 🏷️ Tag, release & firma
+
+```bash
+git tag -a v1.2.0 -m "Release 1.2.0"
+git push origin v1.2.0
+git push --follow-tags  # push commit + tag annotati
+
+# Firma (GPG) per “Verified”
+git tag -s v1.2.0 -m "signed"
+git verify-tag v1.2.0
+git config --global user.signingkey <GPG_KEY_ID>
+git commit -S -m "feat: commit firmato"
+```
+
+`git describe --tags` → utile per build/versioni.
+
+---
+
+## 📦 Submodule, Subtree, LFS (quando e perché)
+
+- **Submodule**: include un repo come dipendenza “fissata” a un commit.  
+  Pro: allinea versioni; Contro: flusso più complesso.
+  ```bash
+  git submodule add <URL> path/
+  git submodule update --init --recursive
+  ```
+- **Subtree**: copia codice esterno *vendorizzato* (più semplice da usare).  
+- **Git LFS**: traccia file binari grandi senza gonfiare la storia.
+  ```bash
+  git lfs install
+  git lfs track "*.psd"
+  git add .gitattributes
+  git commit -m "chore: track psd via LFS"
+  ```
+
+---
+
+## 🧼 Manutenzione & pulizia
+
+```bash
+git fetch -p                       # prune: rimuove riferimenti a branch remoti cancellati
+git branch -d vecchio/branch       # elimina locale (sicuro)
+git branch -D branch               # forza eliminazione locale
+git push origin --delete branch    # elimina remoto
+git gc                             # garbage collection (pulizia interna)
+```
+
+---
+
+## 🧩 GitHub al meglio: PR, protezioni, Actions, Pages
+
+**Pull Request (PR) flow “pulito”**
+1. `git checkout -b feature/x`
+2. commit piccoli + messaggi chiari
+3. rebase su `origin/main` prima della PR
+4. apri PR con descrizione, checklist, screenshot/test
+5. **Squash merge** in `main` (storia pulita)
+
+**Branch protection (Settings → Branches):**
+- Richiedi PR, status checks (CI), code review, niente force-push su `main`.
+
+**PR/Issue template (nella repo):**
+```
+.github/PULL_REQUEST_TEMPLATE.md
+.github/ISSUE_TEMPLATE/bug_report.md
+```
+
+**CODEOWNERS** (review automatiche):
+```
+# .github/CODEOWNERS
+src/auth/*  @team-auth
+```
+
+**GitHub Actions** (CI base):
+```yaml
+# .github/workflows/ci.yml
+name: CI
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npm run lint && npm test --if-present
+```
+
+**GitHub Pages**:
+- Repo statico con `index.html`.
+- Settings → Pages → Branch `main` → salva → attendi URL.  
+  (Oppure usa Action dedicata per generare branch `gh-pages`.)
+
+---
+
+## 🧠 FAQ veloci (punti che spesso confondono)
+
+- **“Non ho fatto `git add`, quindi il file ‘rimane .gitignore’?”**  
+  No. “Non staged” **≠** “ignorato**”. `.gitignore` è una lista di **esclusione**; lo staging è **selezione** per il commit.
+
+- **`git reset --hard origin/master` vs `origin/main`**  
+  I repo moderni usano `main`. Usa quello che vedi su GitHub.
+
+- **Ho fatto `--amend` e ora non posso pushare**  
+  Hai riscritto la storia: fai `git push --force-with-lease` *sul tuo branch*, non su `main`.
+
+- **Rinominare/spostare file**  
+  Git lo rileva automaticamente nei diff; puoi anche esplicitarlo: `git mv old new`.
+
+- **Lavorare su più branch in parallelo senza cambiare cartella**  
+  Usa **worktree**:
+  ```bash
+  git worktree add ../repo-feature feature/x
+  ```
+
+---
+
+## 📋 Mini-cheatsheet (avanzato)
+
+```bash
+# Status/diff/log
+git st
+git diff --stat
+git lg
+git log -p -- path/file
+
+# Staging preciso
+git add -p path/file
+git restore -p path/file
+
+# Commit & refine
+git commit --amend
+git commit -m "fixup! corregge X"
+git rebase -i --autosquash origin/main
+
+# Sync
+git fetch -p
+git pull --rebase
 git push -u origin <branch>
 
-# Sincronizza
-git fetch
-git pull --rebase    # o --no-rebase / --ff-only
+# Conflicts helpers
+git checkout --ours   -- path/file
+git checkout --theirs -- path/file
+
+# Undo
+git revert <sha>
+git reset --hard origin/main
+git reflog
 
 # Branching
 git checkout -b feature/x
-git checkout main
 git merge feature/x
 git branch -d feature/x
+git push origin --delete feature/x
 
-# Undo (sicuri)
-git restore file.txt
-git restore --staged file.txt
-git revert <sha>
-
-# Reset (con cautela)
-git reset --hard origin/main
-# o a uno SHA specifico:
-git reset --hard <sha>
-
-# Log e ispezione
-git lg
-git show <sha>
-git blame file.txt
+# Tags/release
+git tag -a v1.3.0 -m "release"
+git push --follow-tags
+git describe --tags
 ```
+
+---
+
+### Conclusione
+Con questa cassetta degli attrezzi puoi:
+- Lavorare *pulito* su feature branch,
+- Tenere la **storia lineare** (rebase) o **esplicita** (merge),
+- Risolvere conflitti velocemente,
+- Pubblicare con PR protette da CI,
+- Tornare indietro **in sicurezza** quando serve.
+
+Se vuoi, preparo anche una **cheatsheet A4** “Git Pro” o uno **script di dotfiles** per applicare tutte le config su un nuovo Mac/PC.
