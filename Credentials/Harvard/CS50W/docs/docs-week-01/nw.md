@@ -1,46 +1,43 @@
-````md
 # Git e GitHub — lezione completa “da zero”
 
 Questa è una lezione pensata per chi **non ha mai usato Git o GitHub**. Partiamo dal problema che risolvono, capiamo i concetti uno alla volta e poi li mettiamo in pratica con comandi reali. Alla fine avrai un flusso di lavoro quotidiano chiaro e saprai cosa fare quando qualcosa “si incastra”.
 
 ---
 
-0. [Perché esistono Git e GitHub](#0-perche-esistono-git-e-github)
-1. [Concetti fondamentali (senza dare nulla per scontato)](#1-concetti-fondamentali-senza-dare-nulla-per-scontato)
-2. [Installazione e prima configurazione](#2-installazione-e-prima-configurazione)
-3. [Creare o clonare un repository](#3-creare-o-clonare-un-repository)
-4. [Il ciclo di lavoro base (sempre uguale)](#4-il-ciclo-di-lavoro-base-sempre-uguale)
-5. [Che cosa fa davvero `git add`](#5-che-cosa-fa-davvero-git-add)
-6. [`git commit` spiegato bene (cosa significano i flag)](#6-git-commit-spiegato-bene-cosa-significano-i-flag)
-7. [`.gitignore` (cosa non deve entrare nella storia)](#7-gitignore-cosa-non-deve-entrare-nella-storia)
-8. [Vedere le differenze e la storia](#8-vedere-le-differenze-e-la-storia)
-9. [Che cos’è GitHub e quando lo usi](#9-che-cose-github-e-quando-lo-usi)
-10. [Sincronizzare: `fetch`, `pull` e “divergent branches”](#10-sincronizzare-fetch-pull-e-divergent-branches)
-11. [Branching: perché esiste e come si usa](#11-branching-perche-esiste-e-come-si-usa)
-12. [Merge e Rebase: differenze pratiche](#12-merge-e-rebase-differenze-pratiche)
-13. [Merge conflicts: come riconoscerli e risolverli](#13-merge-conflicts-come-riconoscerli-e-risolverli)
-14. [Tornare indietro in sicurezza](#14-tornare-indietro-in-sicurezza)
-15. [Parcheggiare il lavoro: `git stash`](#15-parcheggiare-il-lavoro-git-stash)
-16. [Lavorare bene con GitHub](#16-lavorare-bene-con-github)
-17. [Esercizio guidato (fallo davvero)](#17-esercizio-guidato-fallo-davvero)
-18. [Errori tipici e soluzioni rapide](#18-errori-tipici-e-soluzioni-rapide)
-19. [Cheatsheet finale](#19-cheatsheet-finale)
-20. [Riepilogo in una riga](#20-riepilogo-in-una-riga)
+0. [Perché esistono Git e GitHub](#0)
+1. [Concetti fondamentali (senza dare nulla per scontato)](#1)
+2. [Installazione e prima configurazione](#2)
+3. [Creare o clonare un repository](#3)
+4. [Il ciclo di lavoro base (sempre uguale)](#4)
+5. [Che cosa fa davvero `git add`](#5)
+6. [`git commit` spiegato bene (cosa significano i flag)](#6)
+7. [`.gitignore` (cosa non deve entrare nella storia)](#7)
+8. [Vedere le differenze e la storia](#8)
+9. [Che cos’è GitHub e quando lo usi](#9)
+10. [Sincronizzare: `fetch`, `pull` e “divergent branches”](#10)
+11. [Branching: perché esiste e come si usa](#11)
+12. [Merge e Rebase: differenze pratiche](#12)
+13. [Merge conflicts: come riconoscerli e risolverli](#13)
+14. [Tornare indietro in sicurezza](#14)
+15. [Parcheggiare il lavoro: `git stash`](#15)
+16. [Lavorare bene con GitHub](#16)
+17. [Esercizio guidato (fallo davvero)](#17)
+18. [Errori tipici e soluzioni rapide](#18)
+19. [Cheatsheet finale](#19)
+20. [Riepilogo in una riga](#20)
 
 ---
 
-<a id="0-perche-esistono-git-e-github"></a>
-## 0) Perché esistono Git e GitHub
+<h2 id="0">0) Perché esistono Git e GitHub</h2>
 
 Immagina di lavorare a un progetto e salvare i file come `progetto_finale_DEF2_vera.zip`. Dopo pochi giorni non ricordi più **cosa** è cambiato, **quando** e **perché**. Se collabori con qualcuno, scambiare file per email diventa un incubo.
 
-**Git** risolve questo problema: tiene una **cronologia** del tuo progetto, come una macchina del tempo. Ogni “scatto” della macchina del tempo si chiama **commit**.
+**Git** risolve questo problema: tiene una **cronologia** del tuo progetto, come una macchina del tempo. Ogni “scatto” della macchina del tempo si chiama **commit**.  
 **GitHub** è un sito che ospita una copia online (remota) del tuo progetto, così puoi **pubblicare**, **collaborare** e **fare backup**.
 
 ---
 
-<a id="1-concetti-fondamentali-senza-dare-nulla-per-scontato"></a>
-## 1) Concetti fondamentali (senza dare nulla per scontato)
+<h2 id="1">1) Concetti fondamentali (senza dare nulla per scontato)</h2>
 
 * **Repository (repo)**: cartella del progetto che contiene una sottocartella nascosta `.git/`. Dentro `.git/` c’è tutta la **storia**.
 * **Working tree**: i file “normali” sul disco, dove modifichi il codice.
@@ -54,17 +51,14 @@ Immagina di lavorare a un progetto e salvare i file come `progetto_finale_DEF2_v
 
 ---
 
-<a id="2-installazione-e-prima-configurazione"></a>
-## 2) Installazione e prima configurazione
+<h2 id="2">2) Installazione e prima configurazione</h2>
 
 Verifica che Git sia installato:
-
 ```bash
 git --version
 ```
 
 Configura il tuo nome e la tua email (appaiono nella cronologia):
-
 ```bash
 git config --global user.name  "Il Tuo Nome"
 git config --global user.email "tu@email.com"
@@ -73,14 +67,12 @@ git config --global core.editor "code --wait"    # usa VS Code per i messaggi
 ```
 
 Imposta un comportamento predefinito sensato per `git pull` (spiegazione al §10):
-
 ```bash
 git config --global pull.rebase true
 git config --global rebase.autoStash true
 ```
 
 Accesso a GitHub **senza password** (consigliato):
-
 ```bash
 ssh-keygen -t ed25519 -C "tu@email.com"
 # copia ~/.ssh/id_ed25519.pub in GitHub → Settings → SSH and GPG keys
@@ -88,34 +80,28 @@ ssh-keygen -t ed25519 -C "tu@email.com"
 
 ---
 
-<a id="3-creare-o-clonare-un-repository"></a>
-## 3) Creare o clonare un repository
+<h2 id="3">3) Creare o clonare un repository</h2>
 
 ### 3.1. Creare un nuovo repo **locale**
-
 ```bash
 mkdir mio-progetto && cd mio-progetto
 git init
 ```
 
 ### 3.2. Creare un nuovo repo **su GitHub**
-
 * Vai su github.com → pulsante “New” → scegli un nome.
 * Lascia vuoto se vuoi inizializzare da locale (oppure aggiungi un README).
 
 Collega il remoto e pubblica:
-
 ```bash
 git remote add origin git@github.com:utente/mio-progetto.git
 git add .
 git commit -m "Inizializzazione progetto"
 git push -u origin main
 ```
-
 `-u` stabilisce il collegamento tra il tuo branch locale e quello remoto (tracking). Da ora in poi, basterà `git push`.
 
 ### 3.3. Clonare un repo **già online** (caso più comune)
-
 ```bash
 git clone git@github.com:utente/repo.git
 cd repo
@@ -123,30 +109,25 @@ cd repo
 
 ---
 
-<a id="4-il-ciclo-di-lavoro-base-sempre-uguale"></a>
-## 4) Il ciclo di lavoro base (sempre uguale)
+<h2 id="4">4) Il ciclo di lavoro base (sempre uguale)</h2>
 
 1. **Guarda cosa è cambiato**
-
 ```bash
 git status
 ```
 
 2. **Scegli cosa fotografare** (staging)
-
 ```bash
 git add file1 file2     # selettivo
 git add .               # tutto ciò che è cambiato nella cartella corrente
 ```
 
 3. **Scatta la foto** (commit)
-
 ```bash
 git commit -m "feat: aggiunge form di login"
 ```
 
 4. **Pubblica online** (push)
-
 ```bash
 git push
 ```
@@ -155,8 +136,7 @@ git push
 
 ---
 
-<a id="5-che-cosa-fa-davvero-git-add"></a>
-## 5) Che cosa fa davvero `git add`
+<h2 id="5">5) Che cosa fa davvero `git add`</h2>
 
 `git add` **prende la versione attuale** di un file e la **mette in staging**: quel contenuto finirà nel **prossimo commit**. Non crea un commit, non invia su GitHub.
 
@@ -168,50 +148,40 @@ git push
 Errore comune: “non in stage” **non** significa “in `.gitignore`”. `.gitignore` è una **lista di esclusione**; lo staging è **cosa includere nel prossimo commit**.
 
 Togli dallo staging:
-
 ```bash
 git restore --staged path/file
 ```
 
 ---
 
-<a id="6-git-commit-spiegato-bene-cosa-significano-i-flag"></a>
-## 6) `git commit` spiegato bene (cosa significano i flag)
+<h2 id="6">6) `git commit` spiegato bene (cosa significano i flag)</h2>
 
 ### 6.1. Commit classico
-
 ```bash
 git commit -m "messaggio"
 ```
-
 * `-m` = **message**. Passi il messaggio direttamente da riga di comando.
 
 ### 6.2. Commit senza `git add` (solo file già tracciati)
-
 ```bash
 git commit -am "messaggio"
 ```
-
-* `-a` = **all (tracked)**: mette **automaticamente in staging** tutte le modifiche e le cancellazioni dei file **già tracciati**.
-  Non include **nuovi file**: per quelli serve **prima** `git add`.
+* `-a` = **all (tracked)**: mette **automaticamente in staging** tutte le modifiche e le cancellazioni dei file **già tracciati**.  
+  Non include **nuovi file**: per quelli serve **prima** `git add`.  
 * `-am` è semplicemente la combinazione di `-a` e `-m`.
 
 ### 6.3. Modificare l’ultimo commit
-
 ```bash
 git commit --amend
 ```
-
-* Corregge il messaggio o aggiunge/toglie file dallo **stesso** commit precedente.
+* Corregge il messaggio o aggiunge/toglie file dallo **stesso** commit precedente.  
   Se l’avevi già pubblicato, il push richiederà `--force-with-lease` sul tuo branch.
 
 ---
 
-<a id="7-gitignore-cosa-non-deve-entrare-nella-storia"></a>
-## 7) `.gitignore` (cosa non deve entrare nella storia)
+<h2 id="7">7) `.gitignore` (cosa non deve entrare nella storia)</h2>
 
 Esempio tipico:
-
 ```gitignore
 # file di sistema / editor
 .DS_Store
@@ -226,7 +196,6 @@ node_modules/
 ```
 
 Se hai **già** committato qualcosa da ignorare:
-
 ```bash
 git rm -r --cached path/da/ignorare
 echo "path/da/ignorare" >> .gitignore
@@ -235,8 +204,7 @@ git commit -m "chore: aggiorna .gitignore e rimuove file dall'indice"
 
 ---
 
-<a id="8-vedere-le-differenze-e-la-storia"></a>
-## 8) Vedere le differenze e la storia
+<h2 id="8">8) Vedere le differenze e la storia</h2>
 
 ```bash
 git status -sb                    # panoramica compatta
@@ -249,54 +217,45 @@ git blame path/file               # chi ha cambiato ogni riga
 
 ---
 
-<a id="9-che-cose-github-e-quando-lo-usi"></a>
-## 9) Che cos’è GitHub e quando lo usi
+<h2 id="9">9) Che cos’è GitHub e quando lo usi</h2>
 
 * È il “posto nel cloud” dove vive la **copia remota** del tuo repo.
 * Serve per **collaborare**: apri **Pull Request** (PR) per proporre modifiche, ricevi **review**, fai girare **test automatici** (GitHub Actions).
 * Puoi anche pubblicare siti statici con **GitHub Pages**.
 
 Flusso tipico di collaborazione:
-
-1. Crei un **branch** per una feature.
-2. Fai commit e push.
-3. Apri una **Pull Request** verso `main`.
+1. Crei un **branch** per una feature.  
+2. Fai commit e push.  
+3. Apri una **Pull Request** verso `main`.  
 4. Qualcuno revisiona → risolvi i commenti → si fa **merge**.
 
 ---
 
-<a id="10-sincronizzare-fetch-pull-e-divergent-branches"></a>
-## 10) Sincronizzare: `fetch`, `pull` e “divergent branches”
+<h2 id="10">10) Sincronizzare: `fetch`, `pull` e “divergent branches”</h2>
 
-* `git fetch` **scarica** gli aggiornamenti dal remoto ma **non** tocca i tuoi file.
+* `git fetch` **scarica** gli aggiornamenti dal remoto ma **non** tocca i tuoi file.  
 * `git pull` = `fetch` **+** integrazione degli aggiornamenti nel tuo branch (merge o rebase).
 
 Se vedi:
-
 ```
 hint: You have divergent branches and need to specify how to reconcile them.
 ```
-
 significa che **tu e il remoto avete entrambi nuovi commit**. Devi dire a Git **come** conciliarli:
 
 * **Rebase** (storia lineare, consigliato per progetti personali):
-
   ```bash
   git pull --rebase
   ```
 * **Merge** (storia ramificata, conservativa):
-
   ```bash
   git pull --no-rebase
   ```
 * **Fast-forward only** (permetti solo avanzamenti lineari):
-
   ```bash
   git pull --ff-only
   ```
 
 Impostare un default valido **una volta sola**:
-
 ```bash
 git config --global pull.rebase true       # preferisci rebase lineare
 # oppure:
@@ -307,14 +266,12 @@ git config --global pull.ff only           # solo fast-forward
 
 ---
 
-<a id="11-branching-perche-esiste-e-come-si-usa"></a>
-## 11) Branching: perché esiste e come si usa
+<h2 id="11">11) Branching: perché esiste e come si usa</h2>
 
-**Senza** branch: lavori sempre su `main`. Se rompi qualcosa, blocchi tutti.
+**Senza** branch: lavori sempre su `main`. Se rompi qualcosa, blocchi tutti.  
 **Con** i branch: per ogni funzionalità apri una “linea di lavoro” dedicata; quando è pronta, la unisci a `main`.
 
 Comandi essenziali:
-
 ```bash
 git branch                        # elenco branch (asterisco = corrente)
 git checkout -b feature/login     # crea e passa al nuovo branch
@@ -325,32 +282,27 @@ git branch -d feature/login       # elimina il branch (dopo il merge)
 git push -u origin feature/login  # pubblica il branch su GitHub
 ```
 
-**HEAD** indica su quale branch/commit stai lavorando.
-Se vedi “detached HEAD”, significa che stai guardando un **commit** senza branch: crea un branch se vuoi continuare da lì:
-
+**HEAD** indica su quale branch/commit stai lavorando.  
+“Detached HEAD”? Sei su un commit senza branch: crea un branch se vuoi continuare da lì:
 ```bash
 git switch -c hotfix/urgente
 ```
 
 ---
 
-<a id="12-merge-e-rebase-differenze-pratiche"></a>
-## 12) Merge e Rebase: differenze pratiche
+<h2 id="12">12) Merge e Rebase: differenze pratiche</h2>
 
 **Merge**
-
-* Crea, se necessario, un **commit di merge** che unisce due storie.
-* Pro: non riscrive la storia; sicuro per rami condivisi.
+* Crea, se necessario, un **commit di merge** che unisce due storie.  
+* Pro: non riscrive la storia; sicuro per rami condivisi.  
 * Contro: la cronologia include commit di merge e può sembrare “ramificata”.
 
 **Rebase**
-
-* “Riapplica” i tuoi commit sopra a una base più recente.
-* Pro: storia **lineare**, più facile da leggere.
+* “Riapplica” i tuoi commit sopra a una base più recente.  
+* Pro: storia **lineare**, più facile da leggere.  
 * Contro: **riscrive** i commit del branch; non farlo su commit già condivisi con altri (potresti dover fare `git push --force-with-lease`).
 
 Esempi:
-
 ```bash
 # Merge tipico
 git switch main
@@ -366,11 +318,9 @@ git rebase origin/main
 
 ---
 
-<a id="13-merge-conflicts-come-riconoscerli-e-risolverli"></a>
-## 13) Merge conflicts: come riconoscerli e risolverli
+<h2 id="13">13) Merge conflicts: come riconoscerli e risolverli</h2>
 
 Quando due persone cambiano **la stessa parte** di un file in modi diversi, Git non sa quale versione tenere. Segnala un conflitto introducendo dei **marker** nel file:
-
 ```text
 a = 1
 <<<<<<< HEAD
@@ -381,58 +331,47 @@ b = 3
 c = 3
 ```
 
-Procedura di risoluzione:
-
-1. Apri il file, **scegli** cosa tenere (la tua versione, la loro o un mix) e **rimuovi i marker**.
-2. Aggiungi i file risolti:
-
-   ```bash
-   git add <file_risolto>
-   ```
-3. Completa l’operazione:
-
-   * se stai **rebasando**: `git rebase --continue`
-   * se stai **mergiando**:  `git commit`
-
-Se ti blocchi: `git rebase --abort` o `git merge --abort`.
-
-Scorciatoie utili su un file in conflitto:
-
+Procedura:
 ```bash
-git checkout --ours   -- path/file   # prendi interamente la tua versione
-git checkout --theirs -- path/file   # prendi interamente la versione remota
+# 1) scegli cosa tenere, rimuovi i marker
+git add <file_risolto>
+# 2) completa:
+git rebase --continue    # se rebase
+git commit               # se merge
+# Annulla se serve:
+# git rebase --abort | git merge --abort
+```
+
+Scorciatoie:
+```bash
+git checkout --ours   -- path/file
+git checkout --theirs -- path/file
 ```
 
 ---
 
-<a id="14-tornare-indietro-in-sicurezza"></a>
-## 14) Tornare indietro in sicurezza
+<h2 id="14">14) Tornare indietro in sicurezza</h2>
 
 * **Scartare modifiche non committate**:
-
   ```bash
   git restore path/file
   git restore --source=HEAD -- .
   ```
-* **Annullare un commit mantenendo la storia** (crea un commit che “inverte”):
-
+* **Annullare un commit mantenendo la storia**:
   ```bash
   git revert <sha>
   ```
 * **Riscrivere la storia locale** (attenzione):
-
   ```bash
   git reset --soft  <sha>   # tieni staging e working tree
   git reset --mixed <sha>   # default: svuota staging, tieni working tree
   git reset --hard  <sha>   # perdi modifiche locali
   ```
 * **Allinearti esattamente al remoto**:
-
   ```bash
   git reset --hard origin/main      # o origin/master nei repo più vecchi
   ```
-* **Paracadute** (quasi sempre puoi recuperare):
-
+* **Paracadute**:
   ```bash
   git reflog
   ```
@@ -441,10 +380,7 @@ Se hai committato **segreti** (token, password): invalida/ruota le chiavi e risc
 
 ---
 
-<a id="15-parcheggiare-il-lavoro-git-stash"></a>
-## 15) Parcheggiare il lavoro: `git stash`
-
-Se devi cambiare branch ma hai modifiche non pronte:
+<h2 id="15">15) Parcheggiare il lavoro: `git stash`</h2>
 
 ```bash
 git stash            # salva le modifiche (file tracciati)
@@ -456,82 +392,57 @@ git stash -p         # “a pezzi”
 
 ---
 
-<a id="16-lavorare-bene-con-github"></a>
-## 16) Lavorare bene con GitHub
+<h2 id="16">16) Lavorare bene con GitHub</h2>
 
 **Pull Request (PR) pulita**
+1. `git checkout -b feature/x`  
+2. commit piccoli, messaggi chiari  
+3. `git fetch && git rebase origin/main` prima di aprire la PR  
+4. apri PR su GitHub (descrivi cosa hai fatto, come testare)  
+5. dopo review, **Squash merge** in `main`
 
-1. `git checkout -b feature/x`
-2. commit piccoli, messaggi chiari
-3. `git fetch && git rebase origin/main` prima di aprire la PR
-4. apri PR su GitHub (descrivi cosa hai fatto, come testare)
-5. dopo review, fai **Squash merge** (un solo commit in `main`)
-
-**Fork**: copia di un repo altrui nel tuo account (per proporre modifiche).
+**Fork**: copia di un repo altrui nel tuo account (per proporre modifiche).  
 **GitHub Pages**: pubblica un sito statico
-
-1. repo con `index.html`
-2. `git push`
+1. repo con `index.html`  
+2. `git push`  
 3. Settings → Pages → scegli branch → ottieni l’URL.
 
 ---
 
-<a id="17-esercizio-guidato-fallo-davvero"></a>
-## 17) Esercizio guidato (fallo davvero)
+<h2 id="17">17) Esercizio guidato (fallo davvero)</h2>
 
-1. Crea una cartella vuota e inizializza Git:
+```bash
+mkdir prova-git && cd prova-git
+git init
+echo "ciao" > index.txt
+git add index.txt
+git commit -m "feat: aggiunge index.txt"
 
-   ```bash
-   mkdir prova-git && cd prova-git
-   git init
-   ```
-2. Crea un file e committalo:
+echo "riga2" >> index.txt
+git commit -am "feat: aggiunge riga2 a index.txt"
 
-   ```bash
-   echo "ciao" > index.txt
-   git add index.txt
-   git commit -m "feat: aggiunge index.txt"
-   ```
-3. Modifica e usa `-am`:
+git checkout -b feature/saluto
+echo "hello" >> index.txt
+git commit -am "feat: aggiunge hello"
 
-   ```bash
-   echo "riga2" >> index.txt
-   git commit -am "feat: aggiunge riga2 a index.txt"
-   ```
+git checkout main
+git merge feature/saluto
 
-   Osserva: non hai usato `git add` perché `index.txt` era **già tracciato**.
-4. Crea un branch, fai una modifica e mergiala:
-
-   ```bash
-   git checkout -b feature/saluto
-   echo "hello" >> index.txt
-   git commit -am "feat: aggiunge hello"
-   git checkout main
-   git merge feature/saluto
-   ```
-5. Pubblica su GitHub (crea un repo vuoto sul sito, poi):
-
-   ```bash
-   git remote add origin git@github.com:TUO-UTENTE/prova-git.git
-   git push -u origin main
-   ```
+git remote add origin git@github.com:TUO-UTENTE/prova-git.git
+git push -u origin main
+```
 
 ---
 
-<a id="18-errori-tipici-e-soluzioni-rapide"></a>
-## 18) Errori tipici e soluzioni rapide
+<h2 id="18">18) Errori tipici e soluzioni rapide</h2>
 
-* **“non-fast-forward” al push**: il remoto ha commit che non hai.
-  Soluzione: `git pull --rebase`, risolvi eventuali conflitti, poi `git push`.
-* **“detached HEAD”**: sei su un commit senza branch.
-  Soluzione: `git switch -c nome-branch`.
-* **`.gitignore` non funziona**: hai già tracciato quei file.
-  Soluzione: `git rm -r --cached path/`, poi aggiorna `.gitignore` e committa.
+* **“non-fast-forward” al push** → `git pull --rebase` → risolvi conflitti → `git push`  
+* **“detached HEAD”** → `git switch -c nome-branch`  
+* **`.gitignore` non funziona** → `git rm -r --cached path/` → aggiorna `.gitignore` → commit
 
 ---
 
-<a id="19-cheatsheet-finale"></a>
-## 19) Cheatsheet finale
+<h2 id="19">19) Cheatsheet finale</h2>
 
 ```bash
 # Inizializza / clona
@@ -579,11 +490,9 @@ git commit -m "chore: ignora dist"
 
 ---
 
-<a id="20-riepilogo-in-una-riga"></a>
-## 20) Riepilogo in una riga
+<h2 id="20">20) Riepilogo in una riga</h2>
 
-* **`git add`** prepara i file per il prossimo commit (staging).
-* **`git commit -m`** crea lo snapshot con un messaggio; **`-a`** aggiunge **automaticamente** le modifiche ai file **già tracciati**; **`-am`** = `-a` + `-m`.
-* **`git push`** pubblica su GitHub; **`git pull`** ti allinea (meglio con `--rebase`).
-* Lavora su **branch**, apri **PR** e risolvi i conflitti con metodo.
-````
+* **`git add`** prepara i file per il commit (staging).  
+* **`git commit -m`** crea lo snapshot; **`-a`** include le modifiche dei file già tracciati; **`-am`** = `-a` + `-m`.  
+* **`git push`** pubblica; **`git pull`** ti allinea (meglio con `--rebase`).  
+* Lavora su **branch**, apri **PR**, risolvi i conflitti con metodo.
