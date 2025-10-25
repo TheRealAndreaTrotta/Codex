@@ -4,65 +4,27 @@ Questa è una lezione pensata per chi **non ha mai usato Git o GitHub**. Partiam
 
 ---
 
-# Indice della lezione
-
-1. Introduzione: perché esistono Git e GitHub
-2. Concetti fondamentali
-
-   * Repository, Working tree, Staging area
-   * Commit, HEAD, Branch, Remote
-3. Installazione e prima configurazione
-
-   * Config di base
-   * Accesso SSH a GitHub
-   * Alias utili
-4. Creare o clonare un repository
-
-   * Nuovo repo locale
-   * Nuovo repo su GitHub e collegamento `origin`
-   * Clonare un repo già online
-5. Il ciclo di lavoro base
-
-   * `git status` → `git add` → `git commit` → `git push`
-6. `git add` spiegato
-
-   * Cosa mette in stage, casi tipici, rimuovere dallo stage
-7. `git commit` in dettaglio
-
-   * `-m` (message), `-a` (all tracked), `-am` combinato, `--amend`
-8. `.gitignore`
-
-   * Cosa ignorare, come rimediare se hai già committato file da escludere
-9. Vedere differenze e storia
-
-   * `status`, `diff`, `diff --staged`, `log`, `show`, `blame`
-10. GitHub: che cos’è e quando usarlo
-
-    * PR, review, Actions, Pages (panoramica)
-11. Sincronizzazione con il remoto
-
-    * `fetch` vs `pull`
-    * Messaggio “divergent branches” e scelte: `--rebase`, `--no-rebase`, `--ff-only`
-12. Branching e HEAD
-
-    * Perché usare i branch, comandi base, “detached HEAD”
-13. Merge e Rebase
-
-    * Differenze pratiche, quando scegliere l’uno o l’altro
-14. Merge conflicts
-
-    * Riconoscere i marker, risolvere, `--ours` / `--theirs`, completare l’operazione
-15. Tornare indietro in sicurezza
-
-    * `restore`, `revert`, `reset` (soft/mixed/hard), `reset --hard origin/main`, `reflog`
-16. Stash: parcheggiare lavori in corso
-17. Lavorare bene con GitHub
-
-    * Flusso PR pulito, Fork, GitHub Pages
-18. Esercizio guidato passo-passo
-19. Errori tipici e soluzioni rapide
-20. Cheatsheet dei comandi essenziali
-21. Riepilogo “in una riga” dei concetti chiave
+0. [Perché esistono Git e GitHub](#0-perche-esistono-git-e-github)
+1. [Concetti fondamentali (senza dare nulla per scontato)](#1-concetti-fondamentali-senza-dare-nulla-per-scontato)
+2. [Installazione e prima configurazione](#2-installazione-e-prima-configurazione)
+3. [Creare o clonare un repository](#3-creare-o-clonare-un-repository)
+4. [Il ciclo di lavoro base (sempre uguale)](#4-il-ciclo-di-lavoro-base-sempre-uguale)
+5. [Che cosa fa davvero `git add`](#5-che-cosa-fa-davvero-git-add)
+6. [`git commit` spiegato bene (cosa significano i flag)](#6-git-commit-spiegato-bene-cosa-significano-i-flag)
+7. [`.gitignore` (cosa non deve entrare nella storia)](#7-gitignore-cosa-non-deve-entrare-nella-storia)
+8. [Vedere le differenze e la storia](#8-vedere-le-differenze-e-la-storia)
+9. [Che cos’è GitHub e quando lo usi](#9-che-cose-github-e-quando-lo-usi)
+10. [Sincronizzare: `fetch`, `pull` e “divergent branches”](#10-sincronizzare-fetch-pull-e-divergent-branches)
+11. [Branching: perché esiste e come si usa](#11-branching-perche-esiste-e-come-si-usa)
+12. [Merge e Rebase: differenze pratiche](#12-merge-e-rebase-differenze-pratiche)
+13. [Merge conflicts: come riconoscerli e risolverli](#13-merge-conflicts-come-riconoscerli-e-risolverli)
+14. [Tornare indietro in sicurezza](#14-tornare-indietro-in-sicurezza)
+15. [Parcheggiare il lavoro: `git stash`](#15-parcheggiare-il-lavoro-git-stash)
+16. [Lavorare bene con GitHub](#16-lavorare-bene-con-github)
+17. [Esercizio guidato (fallo davvero)](#17-esercizio-guidato-fallo-davvero)
+18. [Errori tipici e soluzioni rapide](#18-errori-tipici-e-soluzioni-rapide)
+19. [Cheatsheet finale](#19-cheatsheet-finale)
+20. [Riepilogo in una riga](#20-riepilogo-in-una-riga)
 
 ---
 
