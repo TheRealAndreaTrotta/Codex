@@ -1,3 +1,4 @@
+````md
 # Git e GitHub — lezione completa “da zero”
 
 Questa è una lezione pensata per chi **non ha mai usato Git o GitHub**. Partiamo dal problema che risolvono, capiamo i concetti uno alla volta e poi li mettiamo in pratica con comandi reali. Alla fine avrai un flusso di lavoro quotidiano chiaro e saprai cosa fare quando qualcosa “si incastra”.
@@ -28,6 +29,7 @@ Questa è una lezione pensata per chi **non ha mai usato Git o GitHub**. Partiam
 
 ---
 
+<a id="0-perche-esistono-git-e-github"></a>
 ## 0) Perché esistono Git e GitHub
 
 Immagina di lavorare a un progetto e salvare i file come `progetto_finale_DEF2_vera.zip`. Dopo pochi giorni non ricordi più **cosa** è cambiato, **quando** e **perché**. Se collabori con qualcuno, scambiare file per email diventa un incubo.
@@ -37,6 +39,7 @@ Immagina di lavorare a un progetto e salvare i file come `progetto_finale_DEF2_v
 
 ---
 
+<a id="1-concetti-fondamentali-senza-dare-nulla-per-scontato"></a>
 ## 1) Concetti fondamentali (senza dare nulla per scontato)
 
 * **Repository (repo)**: cartella del progetto che contiene una sottocartella nascosta `.git/`. Dentro `.git/` c’è tutta la **storia**.
@@ -51,6 +54,7 @@ Immagina di lavorare a un progetto e salvare i file come `progetto_finale_DEF2_v
 
 ---
 
+<a id="2-installazione-e-prima-configurazione"></a>
 ## 2) Installazione e prima configurazione
 
 Verifica che Git sia installato:
@@ -84,6 +88,7 @@ ssh-keygen -t ed25519 -C "tu@email.com"
 
 ---
 
+<a id="3-creare-o-clonare-un-repository"></a>
 ## 3) Creare o clonare un repository
 
 ### 3.1. Creare un nuovo repo **locale**
@@ -118,6 +123,7 @@ cd repo
 
 ---
 
+<a id="4-il-ciclo-di-lavoro-base-sempre-uguale"></a>
 ## 4) Il ciclo di lavoro base (sempre uguale)
 
 1. **Guarda cosa è cambiato**
@@ -149,6 +155,7 @@ git push
 
 ---
 
+<a id="5-che-cosa-fa-davvero-git-add"></a>
 ## 5) Che cosa fa davvero `git add`
 
 `git add` **prende la versione attuale** di un file e la **mette in staging**: quel contenuto finirà nel **prossimo commit**. Non crea un commit, non invia su GitHub.
@@ -168,6 +175,7 @@ git restore --staged path/file
 
 ---
 
+<a id="6-git-commit-spiegato-bene-cosa-significano-i-flag"></a>
 ## 6) `git commit` spiegato bene (cosa significano i flag)
 
 ### 6.1. Commit classico
@@ -199,6 +207,7 @@ git commit --amend
 
 ---
 
+<a id="7-gitignore-cosa-non-deve-entrare-nella-storia"></a>
 ## 7) `.gitignore` (cosa non deve entrare nella storia)
 
 Esempio tipico:
@@ -226,6 +235,7 @@ git commit -m "chore: aggiorna .gitignore e rimuove file dall'indice"
 
 ---
 
+<a id="8-vedere-le-differenze-e-la-storia"></a>
 ## 8) Vedere le differenze e la storia
 
 ```bash
@@ -239,6 +249,7 @@ git blame path/file               # chi ha cambiato ogni riga
 
 ---
 
+<a id="9-che-cose-github-e-quando-lo-usi"></a>
 ## 9) Che cos’è GitHub e quando lo usi
 
 * È il “posto nel cloud” dove vive la **copia remota** del tuo repo.
@@ -254,6 +265,7 @@ Flusso tipico di collaborazione:
 
 ---
 
+<a id="10-sincronizzare-fetch-pull-e-divergent-branches"></a>
 ## 10) Sincronizzare: `fetch`, `pull` e “divergent branches”
 
 * `git fetch` **scarica** gli aggiornamenti dal remoto ma **non** tocca i tuoi file.
@@ -295,6 +307,7 @@ git config --global pull.ff only           # solo fast-forward
 
 ---
 
+<a id="11-branching-perche-esiste-e-come-si-usa"></a>
 ## 11) Branching: perché esiste e come si usa
 
 **Senza** branch: lavori sempre su `main`. Se rompi qualcosa, blocchi tutti.
@@ -321,6 +334,7 @@ git switch -c hotfix/urgente
 
 ---
 
+<a id="12-merge-e-rebase-differenze-pratiche"></a>
 ## 12) Merge e Rebase: differenze pratiche
 
 **Merge**
@@ -352,6 +366,7 @@ git rebase origin/main
 
 ---
 
+<a id="13-merge-conflicts-come-riconoscerli-e-risolverli"></a>
 ## 13) Merge conflicts: come riconoscerli e risolverli
 
 Quando due persone cambiano **la stessa parte** di un file in modi diversi, Git non sa quale versione tenere. Segnala un conflitto introducendo dei **marker** nel file:
@@ -390,6 +405,7 @@ git checkout --theirs -- path/file   # prendi interamente la versione remota
 
 ---
 
+<a id="14-tornare-indietro-in-sicurezza"></a>
 ## 14) Tornare indietro in sicurezza
 
 * **Scartare modifiche non committate**:
@@ -425,6 +441,7 @@ Se hai committato **segreti** (token, password): invalida/ruota le chiavi e risc
 
 ---
 
+<a id="15-parcheggiare-il-lavoro-git-stash"></a>
 ## 15) Parcheggiare il lavoro: `git stash`
 
 Se devi cambiare branch ma hai modifiche non pronte:
@@ -439,6 +456,7 @@ git stash -p         # “a pezzi”
 
 ---
 
+<a id="16-lavorare-bene-con-github"></a>
 ## 16) Lavorare bene con GitHub
 
 **Pull Request (PR) pulita**
@@ -454,10 +472,11 @@ git stash -p         # “a pezzi”
 
 1. repo con `index.html`
 2. `git push`
-3. Settings → Pages → scegli branch → ottenieni l’URL.
+3. Settings → Pages → scegli branch → ottieni l’URL.
 
 ---
 
+<a id="17-esercizio-guidato-fallo-davvero"></a>
 ## 17) Esercizio guidato (fallo davvero)
 
 1. Crea una cartella vuota e inizializza Git:
@@ -499,6 +518,7 @@ git stash -p         # “a pezzi”
 
 ---
 
+<a id="18-errori-tipici-e-soluzioni-rapide"></a>
 ## 18) Errori tipici e soluzioni rapide
 
 * **“non-fast-forward” al push**: il remoto ha commit che non hai.
@@ -510,6 +530,7 @@ git stash -p         # “a pezzi”
 
 ---
 
+<a id="19-cheatsheet-finale"></a>
 ## 19) Cheatsheet finale
 
 ```bash
@@ -558,9 +579,11 @@ git commit -m "chore: ignora dist"
 
 ---
 
-### Cosa ricordare in una riga
+<a id="20-riepilogo-in-una-riga"></a>
+## 20) Riepilogo in una riga
 
 * **`git add`** prepara i file per il prossimo commit (staging).
 * **`git commit -m`** crea lo snapshot con un messaggio; **`-a`** aggiunge **automaticamente** le modifiche ai file **già tracciati**; **`-am`** = `-a` + `-m`.
 * **`git push`** pubblica su GitHub; **`git pull`** ti allinea (meglio con `--rebase`).
 * Lavora su **branch**, apri **PR** e risolvi i conflitti con metodo.
+````
