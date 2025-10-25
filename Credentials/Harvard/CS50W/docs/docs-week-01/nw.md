@@ -49,6 +49,8 @@ Immagina di lavorare a un progetto e salvare i file come `progetto_finale_DEF2_v
 
 > Immagine mentale: Git è un **grafo** di commit. I branch sono solo **etichette** che puntano a uno dei commit.
 
+![Diagramma: grafo aciclico dei commit Git con etichette di branch](./git-commit-graph-branches.png)
+
 ---
 
 <h2 id="2">2) Installazione e prima configurazione</h2>
