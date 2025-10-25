@@ -4,6 +4,68 @@ Questa è una lezione pensata per chi **non ha mai usato Git o GitHub**. Partiam
 
 ---
 
+# Indice della lezione
+
+1. Introduzione: perché esistono Git e GitHub
+2. Concetti fondamentali
+
+   * Repository, Working tree, Staging area
+   * Commit, HEAD, Branch, Remote
+3. Installazione e prima configurazione
+
+   * Config di base
+   * Accesso SSH a GitHub
+   * Alias utili
+4. Creare o clonare un repository
+
+   * Nuovo repo locale
+   * Nuovo repo su GitHub e collegamento `origin`
+   * Clonare un repo già online
+5. Il ciclo di lavoro base
+
+   * `git status` → `git add` → `git commit` → `git push`
+6. `git add` spiegato
+
+   * Cosa mette in stage, casi tipici, rimuovere dallo stage
+7. `git commit` in dettaglio
+
+   * `-m` (message), `-a` (all tracked), `-am` combinato, `--amend`
+8. `.gitignore`
+
+   * Cosa ignorare, come rimediare se hai già committato file da escludere
+9. Vedere differenze e storia
+
+   * `status`, `diff`, `diff --staged`, `log`, `show`, `blame`
+10. GitHub: che cos’è e quando usarlo
+
+    * PR, review, Actions, Pages (panoramica)
+11. Sincronizzazione con il remoto
+
+    * `fetch` vs `pull`
+    * Messaggio “divergent branches” e scelte: `--rebase`, `--no-rebase`, `--ff-only`
+12. Branching e HEAD
+
+    * Perché usare i branch, comandi base, “detached HEAD”
+13. Merge e Rebase
+
+    * Differenze pratiche, quando scegliere l’uno o l’altro
+14. Merge conflicts
+
+    * Riconoscere i marker, risolvere, `--ours` / `--theirs`, completare l’operazione
+15. Tornare indietro in sicurezza
+
+    * `restore`, `revert`, `reset` (soft/mixed/hard), `reset --hard origin/main`, `reflog`
+16. Stash: parcheggiare lavori in corso
+17. Lavorare bene con GitHub
+
+    * Flusso PR pulito, Fork, GitHub Pages
+18. Esercizio guidato passo-passo
+19. Errori tipici e soluzioni rapide
+20. Cheatsheet dei comandi essenziali
+21. Riepilogo “in una riga” dei concetti chiave
+
+---
+
 ## 0) Perché esistono Git e GitHub
 
 Immagina di lavorare a un progetto e salvare i file come `progetto_finale_DEF2_vera.zip`. Dopo pochi giorni non ricordi più **cosa** è cambiato, **quando** e **perché**. Se collabori con qualcuno, scambiare file per email diventa un incubo.
