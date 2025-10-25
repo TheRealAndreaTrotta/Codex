@@ -47,7 +47,7 @@ Immagina di lavorare a un progetto e salvare i file come `progetto_finale_DEF2_v
 * **Branch**: una linea di sviluppo con un nome (es. `main`, `feature/login`). Serve per lavorare su una modifica **senza toccare** il codice stabile.
 * **Remote (es. `origin`)**: la copia online del repo, tipicamente su GitHub.
 
-**Git come grafo di commit.** I branch sono etichette che puntano a un commit.
+**Esempio: Git come grafo di commit.** I branch sono etichette che puntano a un commit.
 
 ![Grafo dei commit Git: ramo main lineare (A—B—C) e ramo feature che si stacca da B; etichette main→C e feature→F2; HEAD su feature.](./img-w01/git-commit-graph-branches.png)
 
