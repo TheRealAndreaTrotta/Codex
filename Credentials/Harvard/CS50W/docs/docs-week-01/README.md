@@ -1,4 +1,4 @@
-# Git and GitHub — complete lesson “from scratch”
+# Git and GitHub
 
 > File language: [IT](README.it.md) * [EN]
 
