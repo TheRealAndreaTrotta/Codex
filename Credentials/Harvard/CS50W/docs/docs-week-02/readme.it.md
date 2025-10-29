@@ -452,5 +452,3 @@ except KeyError:
 <h2 id="19">19) Riepilogo in una riga</h2>
 
 **Scrivi blocchi `try` piccoli, cattura eccezioni specifiche, separa il percorso felice (`else`) dal recupero errori (`except`), usa `with` per il cleanup, ed abbraccia lo stile EAFP quando i pre-controlli sono fragili o verbosi.**
-
-Se vuoi, trasformo questa lezione in un **PDF** o aggiungo **soluzioni** agli esercizi.
