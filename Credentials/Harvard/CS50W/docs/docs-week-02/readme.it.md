@@ -1,419 +1,456 @@
-# Python — Lecture 2
+# Python — eccezioni, `try/except`, parsing e codice robusto
 
-> Note per Andrea: questa è la versione *README/lezione* in stile Git&GitHub che avevamo fatto. È pensata per essere letta velocemente, con esempi eseguibili e piccole challenge.
+> File language: [IT]
 
----
-
-## Indice
-
-* [Introduzione](#introduzione)
-* [Python (cos'è e come si usa)](#python-cosè-e-come-si-usa)
-* [Variabili](#variabili)
-* [Formattazione delle stringhe (f-strings)](#formattazione-delle-stringhe-f-strings)
-* [Condizioni](#condizioni)
-* [Sequenze](#sequenze)
-
-  * [Stringhe](#stringhe)
-  * [Liste](#liste)
-  * [Tuple](#tuple)
-  * [Set](#set)
-  * [Dizionari](#dizionari)
-* [Cicli (Loops)](#cicli-loops)
-* [Funzioni](#funzioni)
-* [Moduli](#moduli)
-* [Programmazione a Oggetti (OOP)](#programmazione-a-oggetti-oop)
-* [Programmazione Funzionale](#programmazione-funzionale)
-
-  * [Decoratori](#decoratori)
-  * [Lambda](#lambda)
-* [Eccezioni](#eccezioni)
-* [Appendice: setup veloce su macOS/Linux/Windows](#appendice-setup-veloce-su-macoslinuxwindows)
-* [Mini-esercizi](#mini-esercizi)
+Questa è una lezione pensata per chi **non ha mai usato** le eccezioni in Python o le ha usate “a tentoni”. Partiamo dal **perché** esistono, capiamo la **meccanica** (`try/except/else/finally`), vediamo **pattern pratici** (input utente, file, JSON, rete), **antipattern** da evitare e chiudiamo con **esercizi guidati** e un **cheatsheet**.
 
 ---
 
-## Introduzione
-
-Finora abbiamo visto HTML/CSS e Git/GitHub. Oggi entriamo in **Python 3**, linguaggio semplice ma potente, perfetto per web app (Django/Flask), scripting, data, automazione.
-
-> Useremo **Python 3**. Quando cerchi risorse esterne, verifica sempre che siano aggiornate a Python 3.
-
----
-
-## Python (cos'è e come si usa)
-
-**Interprete**: Python esegue il codice *riga per riga* (non compila in binario come C/Java).
-
-**Hello, world**
-
-```python
-print("Hello, world!")
-```
-
-**Come eseguirlo**
-
-1. Crea `hello.py` con il contenuto sopra.
-2. Da terminale, nella cartella del file:
-
-```bash
-python3 hello.py   # su macOS/Linux di solito è python3
-# oppure
-python hello.py    # su Windows o dove 'python' punta a Python 3
-```
-
-> Se `python` dà *command not found*, usa `python3`. Se manca anche quello, vedi la [Appendice](#appendice-setup-veloce-su-macoslinuxwindows).
-
-**Pip (gestore pacchetti)**: installeremo librerie terze parti più avanti (es. `pip install requests`).
+0. [Perché esistono le eccezioni](#0)
+1. [Lessico minimo (senza dare nulla per scontato)](#1)
+2. [Anatomia di `try/except/else/finally`](#2)
+3. [Dove metterle: estensione minima del `try`](#3)
+4. [Parsing di input numerico (con `,` o `.`)](#4)
+5. [Validazione vs parsing (responsabilità chiare)](#5)
+6. [Le eccezioni più comuni (mappa mentale)](#6)
+7. [File I/O robusto: `open`, `with`, errori tipici](#7)
+8. [JSON e CSV: messaggi d’errore utili](#8)
+9. [Rete e timeouts (approccio idiomatico)](#9)
+10. [“Lanciare” eccezioni (`raise`), `assert`, eccezioni custom](#10)
+11. [Propagazione, re-raise, chaining (`from e`), logging](#11)
+12. [EAFP vs LBYL: quando “provare” e quando “controllare”](#12)
+13. [Performance: perché non abusarne (ma non temerle)](#13)
+14. [Antipattern da evitare](#14)
+15. [Testare le eccezioni](#15)
+16. [Esercizi guidati (falli davvero)](#16)
+17. [Errori tipici e soluzioni rapide](#17)
+18. [Cheatsheet finale](#18)
+19. [Riepilogo in una riga](#19)
 
 ---
 
-## Variabili
+<h2 id="0">0) Perché esistono le eccezioni</h2>
 
-Assegnazione e tipi (tipi *inferiti*):
+Quando qualcosa **può fallire** (input utente, file mancanti, rete lenta, dati malformati), hai due scelte:
+• Far **crashare** il programma.
+• **Gestire** il fallimento, informare bene l’utente e decidere cosa fare dopo.
 
-```python
-a = 28            # int
-b = 1.5           # float
-c = "Hello!"      # str
-d = True          # bool
-e = None          # NoneType
-```
-
-**Input utente**
-
-```python
-name = input("Name: ")
-print("Hello, " + name)
-```
-
-> `input()` **restituisce sempre una stringa**. Se ti serve un numero:
-
-```python
-num = int(input("Number: "))
-```
+Le **eccezioni** sono il linguaggio con cui Python segnala i fallimenti. `try/except` è lo strumento per reagire **senza** far collassare tutto.
 
 ---
 
-## Formattazione delle stringhe (f-strings)
+<h2 id="1">1) Lessico minimo (senza dare nulla per scontato)</h2>
 
-Più pulite e leggibili:
-
-```python
-name = input("Name: ")
-print(f"Hello, {name}")
-
-# One-liner (nota le virgolette interne singole)
-print(f"Hello, {input('Name: ')}")
-```
-
----
-
-## Condizioni
-
-Indentazione **obbligatoria** in Python (spazi, non tab misti):
-
-```python
-num = int(input("Number: "))
-
-if num > 0:
-    print("Number is positive")
-elif num < 0:
-    print("Number is negative")
-else:
-    print("Number is 0")
-```
-
-> Errore classico: confrontare `str` con `int` (es. dimenticare `int(...)`).
+• **Errore / eccezione**: un evento anomalo (es. `ValueError`, `FileNotFoundError`).
+• **Lanciare / sollevare**: generare l’eccezione con `raise`.
+• **Catturare**: intercettare con `except` e gestire.
+• **Propagare**: lasciare che l’eccezione salga lo stack fino a qualcuno che la gestisca.
+• **Traceback**: la “scia” di chiamate che porta al punto dell’errore.
+• **Parsing**: analizzare **stringhe** per ricavarne strutture/valori (es. `float("3.14")`).
+• **EAFP**: *Easier to Ask Forgiveness than Permission* → prova e cattura.
+• **LBYL**: *Look Before You Leap* → controlla prima di agire.
 
 ---
 
-## Sequenze
-
-Concetti chiave:
-
-* **Ordinato?** l'ordine degli elementi è significativo.
-* **Mutabile?** gli elementi possono cambiare dopo la creazione.
-
-### Stringhe
-
-* **Ordinato**: Sì
-* **Mutabile**: No
+<h2 id="2">2) Anatomia di `try/except/else/finally`</h2>
 
 ```python
-name = "Harry"
-print(name[0])  # 'H'
-print(name[1])  # 'a'
-```
-
-### Liste
-
-* **Ordinato**: Sì
-* **Mutabile**: Sì
-
-```python
-names = ["Harry", "Ron", "Hermione"]
-print(names)         # lista intera
-print(names[1])      # 'Ron'
-
-names.append("Draco")
-names.sort()
-print(names)
-```
-
-### Tuple
-
-* **Ordinato**: Sì
-* **Mutabile**: No
-
-```python
-point = (12.5, 10.6)
-```
-
-### Set
-
-* **Ordinato**: No
-* **Mutabile**: **Sì** (puoi aggiungere/rimuovere elementi)
-* **Unicità**: ogni valore appare una sola volta
-
-```python
-s = set()
-
-s.add(1); s.add(2); s.add(3); s.add(4)
-s.add(3); s.add(1)   # duplicati ignorati
-
-s.remove(2)
-
-print(s)                         # {1, 3, 4}
-print(f"The set has {len(s)} elements.")  # 3
-```
-
-### Dizionari
-
-* **Ordinato**: Dal 3.7 l'inserimento è preservato (ma pensali concettualmente *non ordinati*)
-* **Mutabile**: Sì
-* **Struttura**: `chiave -> valore`
-
-```python
-houses = {"Harry": "Gryffindor", "Draco": "Slytherin"}
-print(houses["Harry"])  # Gryffindor
-
-houses["Hermione"] = "Gryffindor"
-print(houses["Hermione"])  # Gryffindor
-```
-
----
-
-## Cicli (Loops)
-
-```python
-# range(n) genera 0..n-1
-for i in range(6):
-    print(i)
-
-names = ["Harry", "Ron", "Hermione"]
-for name in names:
-    print(name)
-
-for ch in "Harry":
-    print(ch)
-```
-
----
-
-## Funzioni
-
-```python
-def square(x):
-    return x * x
-
-for i in range(10):
-    print(f"The square of {i} is {square(i)}")
-```
-
-Suggerimenti:
-
-* Documenta con docstring (`"""testo"""`).
-* Tipizza opzionalmente:
-
-```python
-def square(x: int) -> int:
-    """Return x squared."""
-    return x * x
-```
-
----
-
-## Moduli
-
-Separa funzioni e usale altrove.
-
-`functions.py`
-
-```python
-def square(x):
-    return x * x
-```
-
-`square.py`
-
-```python
-from functions import square
-
-for i in range(10):
-    print(f"The square of {i} is {square(i)}")
-```
-
-Oppure importa il modulo intero:
-
-```python
-import functions
-print(functions.square(7))
-```
-
-> Moduli built‑in utili: `math`, `csv`, `json`, `datetime`, `pathlib`, `itertools`.
-
----
-
-## Programmazione a Oggetti (OOP)
-
-**Classe semplice**
-
-```python
-class Point:
-    def __init__(self, x: float, y: float):
-        self.x = x
-        self.y = y
-
-p = Point(2, 8)
-print(p.x, p.y)  # 2 8
-```
-
-**Esempio pratico: volo con capienza**
-
-```python
-class Flight:
-    def __init__(self, capacity: int):
-        self.capacity = capacity
-        self.passengers: list[str] = []
-
-    def open_seats(self) -> int:
-        return self.capacity - len(self.passengers)
-
-    def add_passenger(self, name: str) -> bool:
-        if self.open_seats() == 0:
-            return False
-        self.passengers.append(name)
-        return True
-
-flight = Flight(3)
-people = ["Harry", "Ron", "Hermione", "Ginny"]
-
-for person in people:
-    if flight.add_passenger(person):
-        print(f"Added {person} to flight successfully")
-    else:
-        print(f"No available seats for {person}")
-```
-
----
-
-## Programmazione Funzionale
-
-Python tratta le funzioni come valori.
-
-### Decoratori
-
-```python
-def announce(f):
-    def wrapper():
-        print("About to run the function")
-        f()
-        print("Done with the function")
-    return wrapper
-
-@announce
-def hello():
-    print("Hello, world!")
-
-hello()
-```
-
-> NB: per funzioni con argomenti, usa `*args, **kwargs` nel `wrapper`.
-
-### Lambda
-
-```python
-square = lambda x: x * x
-
-people = [
-    {"name": "Harry", "house": "Gryffindor"},
-    {"name": "Cho", "house": "Ravenclaw"},
-    {"name": "Draco", "house": "Slytherin"},
-]
-
-people.sort(key=lambda person: person["name"])  # ordina per nome
-print(people)
-```
-
----
-
-## Eccezioni
-
-Gestione degli errori con `try/except` (e opzionalmente `else/finally`).
-
-```python
-import sys
-
 try:
-    x = int(input("x: "))
-    y = int(input("y: "))
-except ValueError:
-    print("Error: Invalid input")
-    sys.exit(1)
-
-try:
-    result = x / y
-except ZeroDivisionError:
-    print("Error: Cannot divide by 0.")
-    sys.exit(1)
+    # solo la riga (o poche righe) che può fallire
+    x = float(s)
+except ValueError as e:
+    # ramo di errore specifico
+    print("Numero non valido:", e)
 else:
-    print(f"{x} / {y} = {result}")
+    # eseguito SOLO se non ci sono eccezioni
+    print("Ho convertito:", x)
 finally:
-    pass  # cleanup se serve
+    # eseguito SEMPRE (chiusure/cleanup)
+    pass
+```
+
+• **`try`**: contiene l’operazione fragile.
+• **`except <Tipo>`**: gestisci solo ciò che sai gestire.
+• **`else`**: logica “felice” separata dal flusso d’errore.
+• **`finally`**: cleanup (chiudere file/connessioni). Con i file, spesso preferisci `with`.
+
+---
+
+<h2 id="3">3) Dove metterle: estensione minima del `try`</h2>
+
+**Regola d’oro:** il blocco `try` deve essere **piccolo**, mirato alla riga che può fallire.
+Perché?
+• Eviti di “nascondere” bug non correlati.
+• Sai **cosa** ha fallito e **perché**.
+
+🔴 Cattivo
+
+```python
+try:
+    config = json.loads(Path("cfg.json").read_text())
+    start_server(config)           # se crasha qui, sembra colpa del JSON
+except Exception:
+    print("Qualcosa è andato storto")
+```
+
+🟢 Meglio
+
+```python
+text = Path("cfg.json").read_text()
+try:
+    config = json.loads(text)
+except json.JSONDecodeError as e:
+    print("Config malformata:", e)
+else:
+    start_server(config)
 ```
 
 ---
 
-## Appendice: setup veloce su macOS/Linux/Windows
+<h2 id="4">4) Parsing di input numerico (con `,` o `.`)</h2>
 
-* **Controlla versione**: `python3 --version` (oppure `python --version`).
-* **macOS**: usa Homebrew
+```python
+def parse_float(s: str, allow_comma: bool = True) -> float:
+    s = s.strip()
+    if allow_comma:
+        s = s.replace(",", ".")
+    return float(s)  # può lanciare ValueError
+```
 
-  * `brew install python`
-  * esegui con `python3` e `pip3`.
-* **Linux (Debian/Ubuntu)**: `sudo apt update && sudo apt install python3 python3-pip`
-* **Windows**: scarica da python.org, spunta *Add Python to PATH*; poi `py`, `python`, `pip`.
-* **Virtual env (consigliato)**:
+Uso interattivo con loop (UX buona, messaggi chiari):
 
-  * `python3 -m venv .venv` → `source .venv/bin/activate` (Win: `.venv\Scripts\activate`)
-  * `pip install -U pip`
+```python
+while True:
+    s = input("Inserisci un numero (q per uscire): ").strip()
+    if s.lower() == "q":
+        print("Ciao!")
+        break
+    try:
+        x = parse_float(s)
+    except ValueError:
+        print("Valore non valido. Esempi validi: 3,14  -2  1e3")
+        continue
+
+    if x > 0:   print("Positivo")
+    elif x < 0: print("Negativo")
+    else:       print("Zero")
+```
+
+• Qui il **parse** è `float(...)`: analizza la **stringa** secondo le regole dei numeri Python.
+• L’uso di `try/except` evita il crash e migliora l’esperienza.
 
 ---
 
-## Mini-esercizi
+<h2 id="5">5) Validazione vs parsing (responsabilità chiare)</h2>
 
-• **E1 – F-strings**: chiedi nome e città e stampa `Ciao NAME, com'è il tempo a CITY?`
-• **E2 – Condizioni**: leggi un intero e stampa *pari/dispari/zero*.
-• **E3 – Liste**: leggi 5 nomi, ordina alfabeticamente, stampa l'indice di ciascuno.
-• **E4 – Dizionario**: mappa `nome → voto` e calcola la media.
-• **E5 – OOP**: crea classe `BankAccount` con `deposit`, `withdraw`, `balance`.
-• **E6 – Eccezioni**: estendi E5 gestendo `withdraw` oltre il saldo (solleva `ValueError`).
+• **Parsing**: trasformare testo → valore (può fallire).
+• **Validazione**: stabilire se il valore è **accettabile** per il tuo dominio.
+
+```python
+def parse_age(s: str) -> int:
+    age = int(s)               # può lanciare ValueError
+    if not (0 <= age <= 130):  # validazione dominio
+        raise ValueError("Età fuori range")
+    return age
+```
+
+Separare i due passi rende gli errori **comprensibili** e il codice **testabile**.
 
 ---
 
-### Extra tips
+<h2 id="6">6) Le eccezioni più comuni (mappa mentale)</h2>
 
-• Mantieni lo stile PEP 8 (indentazione 4 spazi).
-• Usa `if __name__ == "__main__":` per il codice eseguibile nei moduli.
-• Salva snippet utili in una cartella `snippets/` del tuo progetto.
-• Quando hai dubbi sui tipi, prova il REPL (`python3`) per sperimentare velocemente.
+• **`ValueError`**: contenuto valido come tipo, ma **valore** sbagliato (`int("abc")`).
+• **`TypeError`**: operazione con **tipo** sbagliato (`len(3)`).
+• **`KeyError`**: chiave mancante in `dict`.
+• **`IndexError`**: indice fuori range in liste/tuple.
+• **`FileNotFoundError`**, **`PermissionError`**: file assente o accesso negato.
+• **`ZeroDivisionError`**: divisione per zero.
+• **`json.JSONDecodeError`**: JSON malformato.
+• **`TimeoutError`** (o equivalenti libreria): operazioni scadute.
+
+---
+
+<h2 id="7">7) File I/O robusto: `open`, `with`, errori tipici</h2>
+
+```python
+from pathlib import Path
+
+path = Path("data.txt")
+try:
+    text = path.read_text(encoding="utf-8")
+except FileNotFoundError:
+    print("File mancante:", path)
+except PermissionError:
+    print("Permessi insufficienti su", path)
+else:
+    print("Lettura OK, lunghezza:", len(text))
+```
+
+• Usa `with` per chiudere **sempre**:
+
+```python
+try:
+    with open("out.txt", "w", encoding="utf-8") as f:
+        f.write("ciao\n")
+except OSError as e:  # macro-classe per I/O
+    print("I/O error:", e)
+```
+
+• Evita `if path.exists()` prima di aprire (race condition): **apri e cattura** l’errore.
+
+---
+
+<h2 id="8">8) JSON e CSV: messaggi d’errore utili</h2>
+
+```python
+import json
+from pathlib import Path
+
+raw = Path("config.json").read_text()
+try:
+    cfg = json.loads(raw)
+except json.JSONDecodeError as e:
+    print(f"JSON non valido (riga {e.lineno}, col {e.colno}): {e.msg}")
+else:
+    print("Chiavi disponibili:", list(cfg))
+```
+
+CSV (valori attesi come numeri):
+
+```python
+import csv
+
+with open("dati.csv", newline="", encoding="utf-8") as f:
+    reader = csv.DictReader(f)
+    for i, row in enumerate(reader, start=1):
+        try:
+            price = float(row["price"])
+        except (KeyError, ValueError) as e:
+            print(f"[riga {i}] campo price non valido: {e}")
+            continue
+        # usa price...
+```
+
+---
+
+<h2 id="9">9) Rete e timeouts (approccio idiomatico)</h2>
+
+*(Esempio con `requests`; concetto valido per qualunque libreria di rete.)*
+
+```python
+import requests
+
+try:
+    r = requests.get("https://api.example.com/items", timeout=5)
+    r.raise_for_status()  # lancia per HTTP 4xx/5xx
+except requests.Timeout:
+    print("Timeout: il server non ha risposto in tempo.")
+except requests.HTTPError as e:
+    print("Errore HTTP:", e.response.status_code)
+except requests.RequestException as e:
+    print("Errore di rete generico:", e)
+else:
+    data = r.json()  # può lanciare ValueError/JSONDecodeError
+```
+
+• Cattura **eccezioni specifiche** prima di quelle generiche.
+• Stabilisci **timeout** espliciti.
+
+---
+
+<h2 id="10">10) “Lanciare” eccezioni (`raise`), `assert`, eccezioni custom</h2>
+
+• `raise` segnala che **non puoi** proseguire:
+
+```python
+def sqrt_nonneg(x: float) -> float:
+    if x < 0:
+        raise ValueError("Serve un numero ≥ 0")
+    return x ** 0.5
+```
+
+• `assert` è per **invarianti interne** (può essere disattivato con `-O`):
+
+```python
+def area_cerchio(r):
+    assert r >= 0, "r deve essere ≥ 0"
+    ...
+```
+
+• Eccezioni custom (migliorano messaggi e catch selettivo):
+
+```python
+class ConfigError(Exception):
+    """Errore nella configurazione dell'app."""
+
+def load_cfg(path):
+    try:
+        raw = Path(path).read_text()
+        return json.loads(raw)
+    except (OSError, json.JSONDecodeError) as e:
+        raise ConfigError(f"Config non caricabile da {path}") from e
+```
+
+---
+
+<h2 id="11">11) Propagazione, re-raise, chaining (`from e`), logging</h2>
+
+• **Propagare**: non catturare se non sai cosa fare.
+• **Re-raise**: dentro un `except`, se non puoi gestire davvero, usa `raise` “nudo”:
+
+```python
+try:
+    ...
+except SpecificError:
+    log.warning("Provo fallback...")
+    raise  # rilancia la stessa eccezione
+```
+
+• **Chaining**: `raise NuovaEccezione(...) from e` conserva il contesto.
+• **Logging**: `logging.exception("Messaggio")` in un `except` stampa anche il traceback.
+
+---
+
+<h2 id="12">12) EAFP vs LBYL: quando “provare” e quando “controllare”</h2>
+
+• **EAFP (consigliato in Python)**
+Prova e cattura l’errore: più **lineare** e immune a race condition.
+
+```python
+try:
+    val = d["key"]
+except KeyError:
+    val = default
+```
+
+• **LBYL** (utile per UX o casi economici)
+Controlla prima **se** una condizione è vera, ma proteggi comunque l’operazione “vera”:
+
+```python
+if "key" in d:
+    val = d["key"]   # può ancora fallire in scenari concorrenti
+else:
+    val = default
+```
+
+• File I/O: evita `if exists()`; **apri e gestisci l’errore**.
+
+---
+
+<h2 id="13">13) Performance: perché non abusarne (ma non temerle)</h2>
+
+• Lanciare/catturare eccezioni **costa** più di un `if` → evita in **hot loops**.
+• A livello applicativo, il costo è spesso **irrilevante** rispetto alla robustezza/UX.
+• Non usare eccezioni per il **flusso normale** (es. per uscire da un ciclo comune).
+
+---
+
+<h2 id="14">14) Antipattern da evitare</h2>
+
+• `except:` nudo (cattura anche `KeyboardInterrupt`, `SystemExit`).
+• `except Exception:` che **inghiotte** tutto senza loggare.
+• Blocchi `try` **enormi** che nascondono bug.
+• Ignorare l’oggetto errore (`except ValueError:` e poi nessun messaggio).
+• Fare roba delicata in `finally` che può **sovrascrivere** eccezioni precedenti.
+• Rinomare variabili con nomi built-in (`file`, `list`, `dict`) e confondersi.
+
+---
+
+<h2 id="15">15) Testare le eccezioni</h2>
+
+Con `pytest`:
+
+```python
+import pytest
+
+def test_parse_age_invalida():
+    with pytest.raises(ValueError, match="fuori range"):
+        parse_age("999")
+```
+
+Testare che **si lanci** l’eccezione giusta fa parte della qualità del codice.
+
+---
+
+<h2 id="16">16) Esercizi guidati (falli davvero)</h2>
+
+**A. Parser numerico “umano”**
+• Scrivi `parse_decimal_it(s)` che accetta `3,14`, `-2`, `1.000,50`, spazi e segno.
+• Restituisce `float`. Se invalido, `ValueError` con messaggio chiaro.
+• Testa con una lista di esempi validi/invalidi.
+
+**B. Lettura config con fallback**
+• Prova a caricare `config.json`. Se manca → usa `default` e salva un `config.json` generato.
+• Se c’è ma è malformato → stampa riga/colonna dell’errore e **esci** con `sys.exit(1)`.
+
+**C. CSV robusto**
+• Leggi `prezzi.csv` (`name,price`). Salta le righe con `price` invalido ma logga il problema.
+• Somma i prezzi validi e stampa il totale formattato con 2 decimali.
+
+**D. Mini-CLI**
+• Con `argparse`, leggi `--amount` e `--rate`. Valida i range; in caso di errore **alza** `ArgumentTypeError` con messaggi leggibili.
+
+---
+
+<h2 id="17">17) Errori tipici e soluzioni rapide</h2>
+
+• “Non capisco perché `except` non entra” → il `try` è **troppo grande** o catturi il **tipo sbagliato**.
+• “Ho preso la chiave ma a volte crasha” → concorrenza: preferisci **EAFP** e cattura `KeyError`.
+• “Il programma non chiude il file” → usa `with open(...)`.
+• “Messaggi d’errore inutili” → includi `as e` e stampa parti salienti (`e.args`, riga/colonna per JSON).
+
+---
+
+<h2 id="18">18) Cheatsheet finale</h2>
+
+```python
+# try/except minimo e mirato
+try:
+    x = float(s)
+except ValueError as e:
+    print("Numero non valido:", e)
+
+# else/finally
+try:
+    resource = acquire()
+except ResourceError:
+    recover()
+else:
+    use(resource)
+finally:
+    release(resource)
+
+# re-raise e chaining
+try:
+    ...
+except LowLevelError as e:
+    raise HighLevelError("contesto utile") from e
+
+# file I/O
+from pathlib import Path
+try:
+    text = Path("file.txt").read_text(encoding="utf-8")
+except FileNotFoundError:
+    text = ""
+
+# JSON con coordinate errore
+try:
+    obj = json.loads(text)
+except json.JSONDecodeError as e:
+    print(f"JSON errato (riga {e.lineno}, col {e.colno}): {e.msg}")
+
+# dict: EAFP
+try:
+    value = d["k"]
+except KeyError:
+    value = default
+```
+
+---
+
+<h2 id="19">19) Riepilogo in una riga</h2>
+
+**Scrivi blocchi `try` piccoli, cattura eccezioni specifiche, separa il percorso felice (`else`) dal recupero errori (`except`), usa `with` per il cleanup, ed abbraccia lo stile EAFP quando i pre-controlli sono fragili o verbosi.**
+
+Se vuoi, trasformo questa lezione in un **PDF** o aggiungo **soluzioni** agli esercizi.
