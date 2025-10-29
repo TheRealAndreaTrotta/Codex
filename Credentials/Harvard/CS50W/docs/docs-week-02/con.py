@@ -5,7 +5,12 @@ while True:
         break
 
     try:
-        x = float(string.replace(",", "."))  # <-- PARSE qui
+        # i must use parse with replace to handle both comma and dot as decimal separators 
+        # e.g., "3.14" and "3,14"
+        # thanks to this, both formats will be correctly interpreted as floats
+        # indeed, this approach ensures that users from different locales can input numbers in their familiar format
+        # the "," is recognized as a string character, so we replace it with "." before conversion
+        x = float(string.replace(",", "."))  # <-- PARSE WITH REPLACE
     except ValueError:
         print("That's not a valid number.")
         continue
