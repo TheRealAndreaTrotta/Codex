@@ -10,11 +10,11 @@ print(p.y)
 '''
 
 class Flight():
-    def __init__(self, capacity):
-        self.capacity = capacity
+    def __init__(self, capacity): #constructor method that initializes the object
+        self.capacity = capacity  #we use self to refer to the object itself
         self.passegers = []
-        
-    def add_passenger(self, name):
+
+    def add_passenger(self, name): 
         if not self.available_seats(): #not is the equivalent of checking if it is 0
             return False
         self.passegers.append(name)
@@ -32,3 +32,5 @@ for person in people:
         print(f"Added {person} to flight successfully.")
     else:
         print(f"No available seats for {person}.")
+
+#questo non è completo
