@@ -1,25 +1,29 @@
-# Python da zero — Lezione completa (stile CS50, ma in italiano)
+# Python da zero 
 
-> Per chi **non ha mai scritto una riga di Python**. Partiamo dall’idea di base (perché Python), poi passiamo a installazione, sintassi e concetti fondamentali. Ogni sezione è accompagnata da esempi funzionanti. Alla fine saprai eseguire script, organizzare il codice in moduli, usare OOP e FP, e gestire le eccezioni.
+> Per chi **non avesse mai scritto una riga di Python**. Partiamo dall’idea di base (perché Python), poi passiamo a installazione, sintassi e concetti fondamentali. Ogni sezione è accompagnata da esempi funzionanti. Alla fine saprai eseguire script, organizzare il codice in moduli, usare OOP e FP, e gestire le eccezioni.
 
 ---
 
 ## Sommario
 
-• [Introduzione](#introduzione)
-• [Variabili](#variabili)
-• [Formattare le stringhe](#formattare-le-stringhe)
-• [Condizioni](#condizioni)
-• [Sequenze](#sequenze)
- • [Stringhe](#stringhe) · [Liste](#liste) · [Tuple](#tuple) · [Set](#set) · [Dizionari](#dizionari)
-• [Cicli](#cicli)
-• [Funzioni](#funzioni)
-• [Moduli](#moduli)
-• [Programmazione a Oggetti (OOP)](#programmazione-a-oggetti-oop)
-• [Programmazione Funzionale (FP)](#programmazione-funzionale-fp)
- • [Decoratori](#decoratori) · [Lambda](#lambda-functions)
-• [Eccezioni](#eccezioni)
-• [REPL vs Script, interprete e pip](#repl-vs-script-interprete-e-pip)
+0. [Introduzione](#introduzione)
+1. [Variabili](#variabili)
+2. [Formattare le stringhe](#formattare-le-stringhe)
+3. [Condizioni](#condizioni)
+4. [Sequenze](#sequenze)
+5. [Stringhe](#stringhe) 
+6. [Liste](#liste) 
+7. [Tuple](#tuple) 
+8. [Set](#set)
+10. [Dizionari](#dizionari)
+11. [Cicli](#cicli)
+12. [Funzioni](#funzioni)
+13. [Moduli](#moduli)
+14. [Programmazione a Oggetti (OOP)](#programmazione-a-oggetti-oop)
+15. [Programmazione Funzionale (FP)](#programmazione-funzionale-fp)
+16. [Decoratori](#decoratori) · [Lambda](#lambda-functions)
+17. [Eccezioni](#eccezioni)
+20. [REPL vs Script, interprete e pip](#repl-vs-script-interprete-e-pip)
 
 ---
 
