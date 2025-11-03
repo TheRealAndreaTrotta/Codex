@@ -759,3 +759,150 @@ python3 todo.py done 1
 • Aggiungi i **type hints** a tutto il progetto e lancia `mypy`.
 • Scrivi test `pytest` per `cmd_add`/`cmd_done` usando un file DB temporaneo.
 • Trasforma `Flight` per usare una `dataclass` `Passenger(name: str)`.
+
+---
+
+## Guida concettuale — utilità, potenzialità & trade‑off (non solo codice)
+
+> Qui spiego **perché** userai ogni concetto, **quando** conviene, e **cosa evitare**. Pochi esempi, molta strategia.
+
+### Interprete vs compilazione
+
+**Perché importa**: l'interprete di Python esegue riga per riga → ottimo per **prototipare** e **automatizzare**. Compilati (C/Java) danno massime prestazioni ma ciclo di sviluppo più lento.
+**Trade‑off**: Python è più lento su CPU‑bound puro, ma spesso recuperi con librerie C ottimizzate (es. NumPy) e con la **produttività**.
+
+### REPL vs Script vs Notebook
+
+• **REPL**: sperimentazione rapida, verifica funzioni, debugging veloce.
+• **Script**: automazioni, CLI, job schedulati, progetti versionati.
+• **Notebook**: analisi dati, AI/ML, report esplorativi.
+**Evita**: notebook per logica di produzione; meglio promuovere in moduli `.py` testabili.
+
+### Variabili e tipi (dinamici)
+
+**Perché**: tipizzazione dinamica accelera lo sviluppo e riduce boilerplate.
+**Attenzione**: errori di tipo emergono **a runtime**; usa **type hints** + `mypy` per prevenire bug.
+**Concetti chiave**: `None` come "assenza di valore"; "truthiness" (0, '', [], {}, None sono falsy).
+
+### Stringhe & f‑string
+
+**Perché**: formattazione leggibile e sicura (evita concatenazioni fragili).
+**Quando**: log, messaggi utente, reporting.
+**Evita**: f‑string con input non validati in contesti sensibili (inserisci sanitizzazione).
+
+### Condizioni
+
+**Perché**: separare i casi chiave.
+**Pattern utili**: **guard clauses** (ritorna presto se invalidi), `match` per casi multipli.
+**Evita**: `if` annidati profondi; preferisci funzioni piccole e nomi espliciti.
+
+### Sequenze: scegliere la struttura giusta
+
+• **list**: ordine, mutabile, uso generale.
+• **tuple**: immutabile, record leggeri (coordinate, chiavi).
+• **set**: membership/duplicati; operazioni insiemistiche veloci.
+• **dict**: mappare chiave→valore, base di molte strutture applicative.
+**Complessità media**: `in` su set/dict ≈ O(1), su list/tuple ≈ O(n).
+
+### Cicli & iterazione
+
+**Perché**: visitare collezioni.
+**Pattern**: `enumerate` per indici, `zip` per avanzare in parallelo, generatori per flussi infiniti o grandi.
+**Evita**: modificare la lista mentre la iteri (usa copia o comprensioni).
+
+### Funzioni
+
+**Perché**: riuso, testabilità, composizione.
+**Buone pratiche**: una funzione = una responsabilità; docstring; parametri nominali.
+**Trappola**: default **mutabili**. Non fare `def f(x=[])`; usa `None` e crea dentro: `x = [] if x is None else x`.
+
+### Moduli & pacchetti
+
+**Perché**: organizzare il codice, **namespace** chiari, riuso.
+**Concetti**: import assoluti, pacchetti con `__init__.py`, entry‑point via `if __name__ == "__main__"`.
+**Evita**: import circolari (rifattorizza in moduli condivisi).
+
+### OOP (oggetti, non solo classi)
+
+**Perché**: modellare entità con **dati + comportamenti**; incapsulare invarianti (es. `balance >= 0`).
+**Linee guida**: preferisci **composizione** a ereditarietà; usa `@property` per garantire validazioni; `__repr__` utile nel debug.
+**Dataclass**: comoda per oggetti‑dati (meno boilerplate) → attenzione: sono mutabili di default.
+
+### FP (funzionale) pratico
+
+**Perché**: trasformazioni dichiarative, meno stato condiviso.
+**Strumenti**: `map/filter`, **lambda** per callback rapide, `functools` (`lru_cache`, `partial`).
+**Evita**: catene di lambda opache; se diventa illeggibile, scrivi funzioni nominate.
+
+### Comprehensions & generatori
+
+**Perché**: costruire collezioni in modo **espressivo**; generatori sono **lazy** e risparmiano memoria.
+**Quando**: dataset grandi/stream → generatori; liste piccole → list comp.
+**Tool**: `itertools` (`chain`, `groupby`, `islice`).
+
+### Context manager
+
+**Perché**: gestione **sicura** delle risorse (file, lock, connessioni).
+**Come**: `with` garantisce cleanup in caso di eccezioni.
+**Custom**: implementa `__enter__/__exit__` o usa `contextlib.contextmanager`.
+
+### Type hints
+
+**Perché**: IDE più smart, refactor sicuri, contratti espliciti.
+**Nota**: non sono enforce a runtime; usa `mypy/pyright` per verificarli.
+**Avanzato**: `Protocol`, `TypedDict`, `Literal` per modelli più precisi.
+
+### Eccezioni
+
+**Perché**: flusso di errore **separato** dal flusso normale.
+**Pattern**: `try/except/else/finally`, eccezioni **di dominio** personalizzate.
+**Evita**: catturare `Exception` in blocchi enormi; limita lo scope e logga il contesto.
+
+### Ambienti virtuali & dipendenze
+
+**Perché**: **isolamento** e replicabilità.
+**Pattern**: `requirements.txt` per pin rapidi; `pyproject.toml` (poetry/uv) per progetti moderni.
+**Evita**: dipendenze globali condivise tra progetti.
+
+### Testing (pytest)
+
+**Perché**: fiducia nei refactor, prevenzione regressioni.
+**Tecniche**: `parametrize`, **fixtures** per setup pulito, `coverage` per misurare.
+
+### Debugging & logging
+
+**Perché**: osservabilità.
+**Strumenti**: `breakpoint()` per ispezionare stato; livelli log (`DEBUG`→`CRITICAL`).
+**Evita**: `print` debugging lasciato nel codice di produzione.
+
+### Stile (PEP 8) & tool
+
+**Perché**: leggibilità di team.
+**Stack consigliato**: **black** (format), **ruff** (lint), **isort** (import), **pre‑commit** (hook).
+**CI**: integra test+lint nei workflow (GitHub Actions).
+
+### CLI con `argparse`
+
+**Perché**: trasformare script in **strumenti** con help e parametri.
+**UX**: descrizioni chiare, error code (`sys.exit`), messaggi utili.
+
+### Performance: quando pensarci
+
+**Prima**: scegli la struttura dati giusta.
+**Misura**: `timeit`, profiler (`cProfile`).
+**Ottimizza**: usa built‑in C‑ottimizzati, evita micro‑ottimizzazioni premature.
+
+### Dati & formati
+
+**JSON**: interoperabile web; **CSV**: tabelle; **YAML/TOML**: config.
+**Schema**: dataclass/`pydantic` per validare (quando serve).
+
+---
+
+## Mappa mentale del corso (da tenere a mente)
+
+1. **Base**: sintassi, tipi, sequenze, funzioni.
+2. **Struttura**: moduli, pacchetti, OOP/FP.
+3. **Robustezza**: eccezioni, type hints, test, logging.
+4. **Prodotto**: CLI, ambienti, packaging, performance.
+5. **Prossimo step**: **Django/FastAPI** (web), **pandas/NumPy** (data), **automazione** (script schedulati).
