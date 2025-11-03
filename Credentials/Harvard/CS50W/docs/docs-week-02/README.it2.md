@@ -35,9 +35,9 @@ Finora (nel percorso web) abbiamo visto **HTML e CSS** per creare pagine e **Git
 > **Python 3** è lo standard che useremo. Esiste ancora **Python 2** in vecchi progetti, ma quando cerchi risorse online **assicurati** che siano per Python 3.
 
 **Perché Python?**
-• Potente e molto usato: permette di costruire in fretta applicazioni web anche complesse.
-• Ecosistema ricchissimo di librerie.
-• Sintassi pulita → ottimo per iniziare, ma resta valido anche da pro.
+- Potente e molto usato: permette di costruire in fretta applicazioni web anche complesse.
+- Ecosistema ricchissimo di librerie.
+- Sintassi pulita → ottimo per iniziare, ma resta valido anche da pro.
 
 **Hello, world**
 
