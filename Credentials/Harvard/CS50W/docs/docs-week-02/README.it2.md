@@ -21,9 +21,10 @@
 13. [Moduli](#moduli)
 14. [Programmazione a Oggetti (OOP)](#programmazione-a-oggetti-oop)
 15. [Programmazione Funzionale (FP)](#programmazione-funzionale-fp)
-16. [Decoratori](#decoratori) · [Lambda](#lambda-functions)
-17. [Eccezioni](#eccezioni)
-20. [REPL vs Script, interprete e pip](#repl-vs-script-interprete-e-pip)
+16. [Decoratori](#decoratori)
+17. [Lambda](#lambda-functions)
+18. [Eccezioni](#eccezioni)
+19. [REPL vs Script, interprete e pip](#repl-vs-script-interprete-e-pip)
 
 ---
 
