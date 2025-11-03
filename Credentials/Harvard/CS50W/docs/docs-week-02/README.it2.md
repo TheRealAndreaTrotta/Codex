@@ -49,12 +49,12 @@ Qui usiamo la funzione built‑in `print`, che accetta un argomento tra parentes
 
 **Come eseguirlo sul tuo computer**
 
-1. Scrivi la riga in un editor e salva come `qualcosa.py`.
+1. Scrivi la riga in un editor e salva come `esempio.py`.
 2. Apri il terminale, vai nella cartella del file.
 3. Esegui:
 
 ```bash
-python3 qualcosa.py   # su molti sistemi è python3
+python3 esempio.py   # su molti sistemi è python3
 ```
 
 Se hai `python` al posto di `python3`, usa quello. Se Python non c’è, **installalo** (e installa anche **pip**: lo useremo più avanti).
